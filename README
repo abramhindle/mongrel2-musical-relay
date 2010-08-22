@@ -18,7 +18,7 @@ In another terminal: perl http_harbinger.pl
 In another terminal: perl bouncey-balls.pl
 Then open up your browser and go to 
 http://localhost:6767/demos/  and
-http://localhost:6767/demos/Bouncey.html
+http://localhost:6767/demos/bouncey.html
 
 Have fun.
 
