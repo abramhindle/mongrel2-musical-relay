@@ -1,0 +1,144 @@
+<!doctype html> 
+<html> 
+	<head> 
+		<title>JS1k, 1k demo submission [248]</title> 
+		<meta charset="utf-8" /> 
+            	<script src="json2.js"></script>
+	</head> 
+	<body> 
+		<canvas id="c"></canvas> 
+		<script> 
+function harb(msg) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST","http://localhost:6767/harbinger", true); // don't need a response
+	xhr.send( JSON.stringify({ "program":"cloth", "id":666, "dest":"", "msg":msg }) );
+}
+var harbqueue = new Array();
+function harbQueueValue() { return harbqueue.join("\n"); }
+function resetHarbQueue() {        harbqueue = new Array(); }
+function harbQueue(str)   {        harbqueue.push( str ); }
+
+// Stolen from http://js1k.com/demo/434
+http://www.andrew-hoyer.com/experiments/cloth
+
+d = document;
+c = d.getElementById('c');
+b = c.getContext('2d');
+f = 10; //number of k (sq_rt)
+c.width = g = window.innerWidth - 25;
+c.height = j = window.innerHeight - 25;
+k=[]; //double array [y][x]
+l=[];
+q=0;
+r=.00125;
+o=1;
+for(h=0, y=.05;h<f;h++,y+=.08) {
+    k[h]=[];
+    for(i=0,x=.05;i<f;i++, x+=.08) {
+        k[h][i]={x:x,y:y,i:1,k:x,j:y};
+        if(h>0){
+            l.push([h-1,i,h,i]);
+        }
+        //add a new horizontal l
+        if(i>0){
+            l.push([h,i-1,h,i]);
+        }
+    }
+}
+k[0][0].i=0;
+k[0][9].i=0;
+
+function ptstr() {
+    return stringify(k);                  
+}
+
+function n() {
+    b.clearRect(0, 0, g, j);
+    for(h=0;h<f;h++) {
+        for(i=0;i<f;i++) {
+            p=k[h][i];
+            if(p.i!=0){
+            nx=p.x*2-p.k;
+            ny=p.y*2-p.j+r;
+
+                p.k=p.x;
+                p.j=p.y;
+                p.x=nx;
+                p.y=ny;
+            }
+            //k[h][i]=p;
+        }
+    }
+    for(h=0;h<2;h++) { //17
+        for(i=0;i<l.length;i++) {
+            a=l[i];
+            s=k[a[0]][a[1]];
+            t=k[a[2]][a[3]];
+            dx=t.x-s.x;
+            dy=t.y-s.y;
+            de=dx*dx+dy*dy;
+            di=(de-.0064)/((.0064+de)*(s.i+t.i));
+            if(s.i!=0) {
+                s.x+=dx*di;
+                s.y+=dy*di;
+            }
+            if(t.i!=0) {
+                t.x-=dx*di;
+                t.y-=dy*di;
+            }
+        }
+    }
+    for(i=0;i<l.length;i++) {
+        a=l[i];
+        b.beginPath();
+       // b.strokeStyle = "#000";
+       s=k[a[0]][a[1]];
+       t=k[a[2]][a[3]];
+        b.moveTo(s.x*g,s.y*j);
+        b.lineTo(t.x*g,t.y*j);
+        b.stroke();
+    }
+    harb(ptstr());
+}
+
+//r();
+
+setInterval(n, 35)
+z="onmouse";
+v=z+"move";
+d[z+"down"] = function(e) {
+	w=f;
+	for(h=0;h<f;h++) {
+		for(i=0;i<f;i++) {
+			p=k[h][i];
+			dx=e.pageX/g-p.x;
+			dy=e.pageY/j-p.y;
+			nw=dx*dx+dy*dy;
+			if(nw<w) {
+				w=nw;
+				q=p;
+			}
+		}
+	}
+	d[v]=function(e) {
+			q.x=q.k=e.pageX/g;
+			q.y=q.j=e.pageY/j;
+			q.i=0;
+	}
+		d[z+"up"]=function(){
+		d[v]=null;
+		q.i=o;
+		}
+}
+d.onkeydown=function(e) {
+	if(e.keyCode==71) {
+		r=(r==0)?.00125:0;
+	}
+	o=0;
+};
+d.onkeyup=function() {
+	o=1;
+} 
+				</script> 
+	</body> 
+</html>
