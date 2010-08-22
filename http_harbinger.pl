@@ -31,12 +31,12 @@ while(1) {
         print "DISCONNECT";
         next;
     } else {
-        my $response = sprintf("<pre>\nSENDER: %s\nIDENT:%s\nPATH: %s\nHEADERS:%s\nBODY:%s</pre>",
-                           $req->{sender}, 
-                           $req->{conn_id},
-                           $req->{path}, 
-                           to_json($req->{headers}), 
-                           $req->{body});
+        #my $response = sprintf("<pre>\nSENDER: %s\nIDENT:%s\nPATH: %s\nHEADERS:%s\nBODY:%s</pre>",
+        #                   $req->{sender}, 
+        #                   $req->{conn_id},
+        #                   $req->{path}, 
+        #                   to_json($req->{headers}), 
+        #                   $req->{body});
 
         print $cnt++,$/;#$response,$/;
         if ($req->{body}) {
@@ -44,8 +44,15 @@ while(1) {
                 my $code = from_json( $req->{body} );
                 relay_harb( $sock, $code );
             };
+            if ($@) {
+                $mongrel->reply_http( $req, "COULD NOT SEND");
+            } else {
+                $mongrel->reply_http( $req, "OK");
+            }
+        } else {
+            $mongrel->reply_http( $req, "NO BODY");
         }
-        $mongrel->reply_http( $req, $response);
+        #$mongrel->reply_http( $req, $response);
     }
 }
 

@@ -1,0 +1,134 @@
+<!doctype html> 
+<html> 
+	<head> 
+		<title>JS1k, 1k demo submission [248]</title> 
+		<meta charset="utf-8" /> 
+            	<script src="json2.js"></script>
+	</head> 
+	<body> 
+		<canvas id="c"></canvas> 
+		<script> 
+function harb(msg) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST","http://localhost:6767/harbinger", true); // don't need a response
+	xhr.send( JSON.stringify({ "program":"bugs", "id":666, "dest":"", "msg":msg }) );
+}
+var harbqueue = new Array();
+function harbQueueValue() { return harbqueue.join("\n"); }
+function resetHarbQueue() {        harbqueue = new Array(); }
+function harbQueue(str)   {        harbqueue.push( str ); }
+
+// Stolen from http://js1k.com/demo/248
+/*
+    Copyright 2010 Alex Michael [unlicensed]
+*/
+var baseid = ~~(20000000*Math.random());
+var c = document.getElementById("c");
+c.width = c.height = WIDTH = HEIGHT = 500;
+var ctx = c.getContext('2d'),
+	bs  = [],
+	rnd = Math.random,
+	f   = Math.floor,
+	pw = Math.pow,
+	i,j,
+	N   = 200,
+	J   = 0,
+	H   = 500;
+	
+var P = function(){
+	var B = this;
+	B.x  = rn(500); 
+	B.y  = rn(500);
+	B.r  = rn(8);
+	B.dx = rn(4,1);
+	B.dy = rn(4,1);
+	B.c  = 'rgb(' + rn(255) + "," + rn(255) + "," + rn(255) + ")";
+	B.id = "ID" + baseid + "-" + ~~(20000000*Math.random());
+ 	B.dl = 0;
+	
+	B.d = function(b){
+		return Math.sqrt(pw(B.x - b.x,2) + pw(B.y - b.y, 2));
+	};
+	
+	function rn(l,p){
+		return  ((p)? (rnd() > 0.5)? -1 : 1 : 1) * f(rnd() * l);
+	}
+	
+	B.u = function(){
+		B.dx += rn(3,1) / 2;
+		B.dy += rn(3,1) / 2;
+		B.x  += B.dx;
+		B.y  += B.dy;
+		B.x = (B.x < 0)? B.x + H: B.x % H; 
+		B.y = (B.y < 0)? B.y + H: B.y % H;                            
+		if (Math.random() > .9) harb("Moved " + B.id + " " + B.r + " " + B.x / WIDTH + " " + B.y / HEIGHT + 
+                                       " " + B.dx / WIDTH + " " + B.dy / HEIGHT);
+		for (var i = 0; i < N;i++){
+			var b = bs[i];
+			if (b && b !== B){
+				var d = B.d(b);
+				if (d < 30 && B.r < b.r){
+					var w = - (1 - d / 30);
+					B.dx *= w;
+					B.dy *= w; 
+				}
+				else if (d < B.r- b.r){
+					if (B.r > b.r){
+						var tmpr = B.r;
+						B.r += b.r / 2;
+						b.dl = 1;
+						harb("Eaten " + B.id +
+		" " + b.id + " " + tmpr + " " + b.r + " " + B.r);
+					}
+				}
+			}
+		};
+		ctx.fillStyle = B.c;
+		ctx.beginPath();
+		ctx.arc(B.x, B.y, B.r, 0, Math.PI*2, true); 
+		ctx.closePath();
+		ctx.fill();
+	};
+};
+
+//reset()
+function r(){
+	ctx.fillStyle = 'rgba(34, 34, 34, 0.3)';
+	ctx.fillRect(0,0,H,H);
+}
+
+//init()
+function i(){
+	r();
+	for (var i = 0; i < N;i++){
+		bs.push(new P());
+	}
+	a();
+}
+
+
+//animate()
+function a(){
+	r();
+        //resetHarbQueue();
+	for (var i = 0; i < N;i++){
+		var p = bs[i];
+		if (p){
+			if (p.dl === 1){
+				bs[i] = null;
+				J++;
+			}
+			else{
+				p.u();
+			}
+		}
+	}
+        //harb(harbQueueValue());
+	if (J < N - 1){
+		setTimeout(a,100);
+	}
+}
+i();
+		</script> 
+	</body> 
+</html>
