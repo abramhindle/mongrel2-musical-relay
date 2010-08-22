@@ -1,0 +1,50 @@
+This is a demo of using Mongrel2 in order to take input from webpages and turn it into music.
+
+We use CSound on the backend to render.
+
+* Mongrel2
+* ZeroMQ
+* ZeroMQ in perl
+* CSound
+* A good browser.
+
+A demo of what I'm up to: http://softwareprocess.es/y/mongrel2-js1k-music-instrument-demo.ogv
+                          http://www.youtube.com/watch?v=jchB_pBdWHA
+
+To run the balls thing do this:
+
+In one terminal: make start
+In another terminal: perl http_harbinger.pl
+In another terminal: perl bouncey-balls.pl
+Then open up your browser and go to 
+http://localhost:6767/demos/  and
+http://localhost:6767/demos/Bouncey.html
+
+Have fun.
+
+|-- Harbinger.pm -- Harbinger perl library
+|-- Makefile -- Makefile to start up mongrel2
+|-- Mongrel2.pm -- My Mongrel2 perl bindings ZeroMQ
+|-- NOTES.org -- Some poor Notes
+|-- balls.pl -- Crap file, shouldn't be here -- Harbinger example
+|-- balls.sh -- Jackit boot up for bouncey-balls.sh (used for desktop recording)
+|-- body_post.pl -- Demo of posting with a body
+|-- bouncey-balls.pl -- Harbinger bouncey balls instrument (uses planet.orc planet.sco)
+|-- filler-balls.pl -- Use filler.html some dumb game I made (uses planet.orc planet.sco)
+|-- harbinger-demos
+|   |-- bouncey.html -- bouncey ball js1k.com entry sonified
+|   |-- filler.html -- filler creep game sonified
+|   |-- index.html -- a directory
+|   `-- json2.js  -- a json lib I use
+|-- http.pl -- http.py ported to Perl for Mongrel2
+|-- http.py -- http.py from Mongrel2
+|-- http_harbinger.pl -- http.pl ported to harbinger :D
+|-- http_mongrel.pl  -- http.pl ported to Mongrel2.pm
+|-- mongrel2s-example-http-py-ported-to-perl.pl -- redundant
+|-- myconfig.py -- The config that I am using to run the harbinger thing in mongrel2
+|-- myconfig.sqlite -- the mongrel2 config which you need to make
+|-- planets.orc -- CSound Orchestra
+|-- planets.sco -- CSound real time score
+`-- tests
+    `-- sample.html -- Sample.html
+

@@ -6,3 +6,8 @@ reload:
 	m2sh reload -db myconfig.sqlite  -config myconfig.py -host localhost
 start:
 	m2sh start -db myconfig.sqlite -host localhost
+
+tests:
+	GET http://localhost:6767/tests/sample.html
+	GET http://localhost:6767/tests/index.html
+	GET http://localhost:6767/tests/index.html
