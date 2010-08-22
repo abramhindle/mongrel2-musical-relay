@@ -1,0 +1,6 @@
+* Notes
+  - download pip 
+    - needed python-setuptools
+  - pip install distribute
+  - pyrepl not found
+     - http://ftp.riken.go.jp/pub/FreeBSD/distfiles/python/pyrepl-0.8.1.tar.gz

@@ -1,0 +1,62 @@
+
+<!doctype html> 
+<html> 
+	<head> 
+		<title>JS1k, 1k demo submission [385]</title> 
+		<meta charset="utf-8" /> 
+            	<script src="json2.js"></script>
+	</head> 
+	<body> 
+		<canvas id="c"></canvas> 
+		<script> 
+function harb(msg) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST","http://localhost:6767/harbinger", true); // don't need a response
+	xhr.send( JSON.stringify({ "program":"bouncey", "id":666, "dest":"", "msg":msg }) );
+}
+// Stolen from http://js1k.com/demo/385
+M=Math;
+E=M.abs;
+R=M.random;
+ID="BOUNCE:" + (~~(20000000*R()));
+C=document.body.children[Q=0];
+C.width=W=innerWidth;
+C.height=H=innerHeight-6;
+X=C.getContext("2d");
+X.m=X.moveTo;
+X.l=X.lineTo;
+P=200;
+cnt=0;
+A=[d={x:W/2,y:H/2,r:30},a={x:0,y:0},b={x:0,y:0,p:0,q:0,r:20},c={x:0,y:0}];
+onmousemove=function(e){a.x=e.pageX;a.y=e.pageY};
+onclick=function(){Q=~Q};
+
+function withb() {
+with(b){
+m=x-c.x,n=y-c.y,m*m+n*n<900?c.x=R(c.y=R(d.r++)*H)*W:0;
+_=(Q?-P:P);
+p+=(a.x-x)/P+(d.x-x)/_;
+q+=(a.y-y)/P+(d.y-y)/_;
+p*=.98;
+q*=.98;
+x+=p;
+y+=q;
+
+x-r<0?p=E(p,x=r):x+r>W?p=-E(p,x=W-r):0;
+y-r<0?q=E(q,y=r):y+r>H?q=-E(q,y=H-r):0;
+if ((cnt++%4)==0)harb(ID + " " + a.x/W + " " + a.y/H +" "+ x/W + " " + y/H);
+with(X){
+fillStyle=Q?"#900":"#009",fillRect(0,0,W,H),lineWidth=3,strokeStyle=fillStyle="#FFF",m(a.x,a.y),l(x,y),stroke(l(d.x,d.y));
+for(i in A) 
+  with(z=A[i])
+    beginPath(m(x,y)),fill(arc(x,y,z.r||10,0,M.PI*2,true))
+
+}
+}
+}
+
+setInterval('withb()', 30);
+
+		</script> 
+	</body> 
+</html>

@@ -1,0 +1,345 @@
+<!doctype html> 
+<html> 
+	<head> 
+		<title>Filler Creep</title> 
+		<meta charset="utf-8" /> 
+	</head> 
+	<body> 
+          <div id="debug"></div>
+          <div id="m">Let's play a game! Choose an AI!</div>
+		<canvas id="c"></canvas> 
+            	<script src="json2.js"></script>
+		<script> 
+var W = 16; // pixels per box
+var w = 32; // size of map w * w
+var pw = W * w;
+var s = w * w;
+var colors = [ "rgb(32,32,32)", "rgb(255,255,255)", 
+               "rgb(114,200,70)", "rgb(160,47,121)",
+               "rgb(122,126,215)", "rgb(58,214,206)",
+];
+var coff = 2;
+var ncolor = 4;
+var player1 = 0;
+var player2 = 1;
+var colorbase = 2;
+var board = new Array(w * w);
+
+var m = document.getElementById("m");
+function msg( t ) {
+  m.innerHTML = t;
+}
+
+
+function initboard() {
+  var i=0;
+  while(i<s){
+    board[i++] = Math.floor(Math.random()*ncolor+coff)
+  }
+  board[0]   = player1;
+  board[s-1] = player2;
+  msg("Welcome to Filler Creep");  
+}
+
+initboard();
+
+function debug( t ) {
+  document.getElementById("debug").innerHTML += "| " + t;
+}
+
+var ig = document.getElementById("c");
+ig.width = pw;
+ig.height = pw;
+
+// An AI that just chooses random colors
+function randai() {
+  return Math.floor(Math.random()*ncolor+2);
+}
+
+var _order = 0;
+// An AI that choose colors in order
+function orderai() {
+  return (_order++ % ncolor) + 2;
+}
+
+var ctx = ig.getContext('2d');
+var d = ctx.createImageData(pw,pw);
+function drawBoard() {
+  var x,y;
+  for(y = 0; y < w; y++) {
+    for(x = 0; x < w; x++) {
+      var z = board[x + w * y];
+      ctx.fillStyle = colors[z];
+      ctx.fillRect(x * W, y * W, W, W);
+    }
+  }
+}
+// mutation
+function pos(x,y) { return w * y + x }
+function bounds(x,y) { return (x >= 0 && x < w && y >= 0 && y < w) }
+function fillFlood(board,xi,yi,c,rc) {
+  if (!bounds(xi,yi)) { return 0; }
+  var i = pos(xi,yi);
+  if (board[i] == c) {
+    board[i] = rc;
+    return 1 + 
+           fillFlood(board, xi+1,yi,c,rc) +
+           fillFlood(board, xi-1,yi,c,rc) +
+           fillFlood(board, xi,yi-1,c,rc) +
+           fillFlood(board, xi,yi+1,c,rc);    
+  } else {
+    return 0;
+  }
+}
+function fillTouch(board, player, playerx, playery, c) {
+  fillFlood(board, playerx, playery, player, c);
+  return fillFlood(board, playerx, playery, c, player);
+}
+function testTouch(board, player, playerx, playery, c) {
+  var b = board.concat();
+  return fillTouch( b, player, playerx, playery, c);
+}
+function maxai(board,player,x,y) {
+  var c = coff, i=coff, m=0;
+  for(i = coff; i < coff+ncolor; i++) {
+    var v = testTouch(board,player,x,y,i);
+    //debug(v+" " +i+" "+m+" "+player+" "+x+" "+y);
+    if (m < v) {
+      c = i; m = v;      
+    }
+  }
+  return c;
+}
+
+function alphabeta( maxdepth, board, player, x, y, oplayer, ox, oy) {
+  var choice = coff; 
+  var m = 0;
+  var helper = function(bd, p1, x1, y1, p2, x2, y2, depth, accm) {
+    var it = 0;
+    var m = -100000000;
+    var c = coff;
+    for( it = coff; it < coff+ncolor; it++) {
+      var bi = bd.concat();
+      var f = fillTouch( bi, p1, x1, y1, it );
+      if (depth < maxdepth) {
+        var r = helper(bi, p2, x2, y2, p1, x1, y1, depth+1, accm+" "+it);
+        f = f - r[1];
+
+      }
+      if (f >= m) {
+        c = it;
+        m = f;
+      }      
+    }
+    return [c,m];
+  };
+  var r = helper(board, player, x, y, oplayer, ox, oy, 0,"");
+  //debug(r); 
+  return r[0];
+      
+};
+function maxDistance( board, player, xi, yi) {
+  dm = 0;
+  for(y = 0; y < w; y++) {
+    for(x = 0; x < w; x++) {
+      var z = board[x + w * y];
+      if (z == player) {
+        var dx = x - xi,
+            dy = y - yi,
+            d  = dx * dx + dy * dy;
+        dm = (d > dm)?d:dm;
+      }
+    }
+  }
+  return dm;
+}
+// refactor alphabeta into a heuristic function
+function minimaxDist( maxdepth, board, player, x, y, oplayer, ox, oy) {
+  var choice = coff; 
+  var m = 0;
+  var helper = function(bd, p1, x1, y1, p2, x2, y2, depth, accm) {
+    var it = 0;
+    var m = -100000000;
+    var c = coff;
+    for( it = coff; it < coff+ncolor; it++) {
+      var bi = bd.concat();
+      var f = fillTouch( bi, p1, x1, y1, it );
+      var md = maxDistance( bi, p1, x1, y1 ); // heuristic
+      md = md * 10 + f;
+      if (depth < maxdepth) {
+        var r = helper(bi, p2, x2, y2, p1, x1, y1, depth+1, accm+" "+it);
+        md = md - r[1];
+      }
+      if (md >= m) {
+        c = it;
+        m = md;
+      }      
+    }
+    return [c,m];
+  };
+  var r = helper(board, player, x, y, oplayer, ox, oy, 0,"");
+  return r[0];
+      
+};
+
+
+
+var ai = maxai;
+
+
+
+var ais = {
+  "random": randai,
+  "order": orderai,
+  "maximum": maxai,
+  "alpha beta 1": function(b, p, x, y, op, ox, oy) { return alphabeta(
+  1, b,  p, x, y, op, ox, oy); },
+  "alpha beta 3": function(b, p, x, y, op, ox, oy) { return alphabeta(
+  3, b,  p, x, y, op, ox, oy); },
+  "alpha beta 5": function(b, p, x, y, op, ox, oy) { return alphabeta(
+  5, b,  p, x, y, op, ox, oy); },
+  "alpha beta 7": function(b, p, x, y, op, ox, oy) { return alphabeta(
+  7, b,  p, x, y, op, ox, oy); },
+  "alpha beta 9": function(b, p, x, y, op, ox, oy) { return alphabeta(
+  9, b,  p, x, y, op, ox, oy); },
+  "minimax distance 1": function(b, p, x, y, op, ox, oy) { return minimaxDist(
+  1, b,  p, x, y, op, ox, oy); },
+  "minimax distance 3": function(b, p, x, y, op, ox, oy) { return minimaxDist(
+  3, b,  p, x, y, op, ox, oy); },
+  "minimax distance 5": function(b, p, x, y, op, ox, oy) { return minimaxDist(
+  5, b,  p, x, y, op, ox, oy); },
+  "minimax distance 7": function(b, p, x, y, op, ox, oy) { return minimaxDist(
+  7, b,  p, x, y, op, ox, oy); },
+  "minimax distance 9": function(b, p, x, y, op, ox, oy) { return minimaxDist(
+  9, b,  p, x, y, op, ox, oy); },
+
+};
+
+function changeAI( aiName ) {
+  ai = ais[aiName];
+  msg("AI switched to "+aiName);
+}
+
+function harb(msg) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST","http://localhost:6767/harbinger", true); // don't need a response
+	xhr.send( JSON.stringify({ "program":"filler", "id":666, "dest":"", "msg":msg }) );
+}
+
+function onClick(e) {
+  var x;
+  var y;            
+  x = e.clientX - ig.offsetLeft;
+  y = e.clientY - ig.offsetTop;
+  x = Math.floor(x / W);
+  y = Math.floor(y / W);
+  var i = pos(x,y);
+  var c = board[ i ];
+  harb(x + " " + y + " " + c);
+  if (c > player2) {
+    //fillFlood(board, x,y,c, player1);
+    // us
+    var us = fillTouch( board, player1, 0, 0, c );
+    // them
+    var them = fillTouch( board, player2, w-1, w-1, ai(board,player2,w-1,w-1,player1,0,0) );
+    //board[ i ] = player1;
+    drawBoard();  
+    var st = "Us: "+us+" Them: "+them;
+    if (us + them == s) {
+      if (us > them) {
+        msg("You won: "+st);
+      } else if (them > us) {
+        msg("You lost: "+st);
+      } else {
+        msg("You tied: "+st);
+      }
+    } else {
+      msg( st );
+    }
+  } else {
+    msg.innerHTML="Please click on possible colors";
+  }
+}
+ig.onclick=onClick;
+//ig.addEventListener('onclick', onClick, false);
+
+function newgame() {
+  initboard();
+  drawBoard();
+}
+newgame();
+
+		</script> 
+                <div id="controls">
+                  <a href="#" onclick="newgame();">New Game!</a>
+                </div>
+                
+                <div id="ai">
+                  Choose an AI:
+                  <a href="#" onclick="changeAI('random');">Random</a>
+                  <a href="#" onclick="changeAI('order');">Ordered</a>
+                  <a href="#" onclick="changeAI('maximum');">Maximum</a>
+                  <a href="#" onclick="changeAI('alpha beta 1');">AlphaBeta 1</a>
+                  <a href="#" onclick="changeAI('alpha beta 3');">AlphaBeta 3</a>
+                  <a href="#" onclick="changeAI('alpha beta 5');">AlphaBeta 5</a>
+                  <a href="#" onclick="changeAI('alpha beta 7');">AlphaBeta 7</a>
+                  <a href="#" onclick="changeAI('alpha beta 9');">AlphaBeta 9</a>
+                  <a href="#" onclick="changeAI('minimax distance 1');">minimax distance 1</a>
+                  <a href="#" onclick="changeAI('minimax distance 3');">minimax distance 3</a>
+                  <a href="#" onclick="changeAI('minimax distance 5');">minimax distance 5</a>
+                  <a href="#" onclick="changeAI('minimax distance 7');">minimax distance 7</a>
+                  <a href="#" onclick="changeAI('minimax distance 9');">minimax distance 9</a>
+                </div>
+                <div id="instructions">
+                  I was going to cut this down and make a 1K javascript
+                  entry out of it, but I don't feel like it. I think the AI
+                  stuff is a bit more fun.<p/>
+                  
+                  You are the black creep and you are fighting the white
+                  creep for dominion. You want to grow and creep over more
+                  area on the map than the white creep. The white creep will
+                  try to take over more of the map than you.<p/>
+                  
+                  At any one time you can extend your creep by
+                  clicking on a colour adjacent to your creep. This will
+                  cause your creep to expand and grow into all spaces of
+                  that colour that touches your creep.<p/>
+
+                  At the end of the game you might not have any more space
+                  to grow, but your opponent might. Keep clicking on open
+                  map position (positions not black or white) until your
+                  opponent has filled them in. <p/>
+                  
+                  <ul>
+                    <li> The random AI simply chooses a random colour to grow into,
+                      it might never terminate so watch out. This AI is
+                      very stupid.</li>
+                    <li> The Ordered AI simply iterates through all of the
+                      colours regardless of adjacent colours. It is
+                      guaranteed to terminate but it might take a few turns
+                      to do so. This AI is stupid. </li>
+                    <li> Maximum AI will maximize its creep size on every
+                      move, it will probably beat you if you're not paying
+                      attention.</li>
+                    <li>Alpha Beta 1 through 9 uses AI alpha beta "pruning"
+                      techniques without the pruning. It is really just the minimax algorithm. This AI makes the
+                      assumption that you are playing optimally (which you
+                      aren't) so you might catch it up if it can't look ahead
+                      far enough or you're playing like an idiot and somehow
+                      that works out. Note: Alpha Beta 7 might take too much
+                      time to play on your computer and Alpha Beta 9 will
+                      definitely take a long time to decide on the move it
+                      will take. </li>
+		    <li>Minimax Distance 1 through 9 is the alpha beta player
+but with a different strategy.  instead of trying to get maximal coverage, this
+AI tries to push the further limit of its creep. It tries to get across to the
+fartherest corners (particularly yours) as fast as it can and then once it hits
+that limit it will optimize for space.</li>
+                  </ul>
+
+                </div>
+                <div>
+                  Filler was the inspiration for this game: <a href="http://sourceforge.net/projects/filler/">http://sourceforge.net/projects/filler/</a>
+                </div>
+	</body> 
+</html>

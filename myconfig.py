@@ -1,0 +1,34 @@
+from mongrel2.config import *
+
+handler_test = Handler(send_spec='tcp://127.0.0.1:9997',
+                       send_ident='82209006-86FF-4982-B5EA-D1E29E55D481',
+                       recv_spec='tcp://127.0.0.1:9996',recv_ident='')
+
+harbinger = Handler(send_spec='tcp://127.0.0.1:9967',
+                    send_ident='f8144414-ad7a-11df-9185-001bfce70aad',
+                     recv_spec='tcp://127.0.0.1:9966',recv_ident='')
+
+
+main = Server(
+    uuid="f400bf85-4538-4f7a-8908-67e313d515c2",
+    access_log="/logs/access.log",
+    error_log="/logs/error.log",
+    chroot="./",
+    default_host="localhost",
+    pid_file="/run/mongrel2.pid",
+    port=6767,
+    hosts = [
+        Host(name="localhost", routes={
+            r'/tests/': Dir(base='tests/', index_file='index.html',
+                             default_ctype='text/plain'),
+            r'/demos/': Dir(base='harbinger-demos/', index_file='index.html',
+                             default_ctype='text/plain'),
+            r'/handlertest': handler_test,
+            r'/harbinger': harbinger,
+        })
+    ]
+)
+
+commit([main])
+
+
