@@ -8,18 +8,72 @@
 	<body> 
 		<canvas id="c"></canvas> 
 		<script> 
+// Stolen from http://js1k.com/demo/434
+// http://www.andrew-hoyer.com/experiments/cloth
+// (c) 2010 Andrew Hoyer
+
+k=[]; //double array [y][x]
+
+// Excuse the mess I had mongrel troubles
+
+function recvd() { };
+var harbcnt=0;
+var hard_sending = 0;
+function ptstr() {
+    return JSON.stringify(k);                  
+}
+function harbsend() {
+    //harb( ptstr() );
+    // send every 10 nodes out
+    var p = 3;
+    for(var h = 0; h < f; h++) {
+      var o = [];
+      for(var w = 0; w < f; w++) {
+        var v = k[h][w];
+        o.push([ w, h,
+         v.x.toPrecision(p),
+         v.y.toPrecision(p),
+         v.j.toPrecision(p),
+         v.k.toPrecision(p)].join(" "));
+      }
+      harb(o.join("\n"));
+    }
+    //for(var i = 0; i < 15; i++) 
+    //  o.push("####################################################################################################");
+
+    //harb(JSON.stringify([[{"x":1,"y":1,"j":1,"k":1}]]));
+    //harb( o.join(" ") );
+}
+
+
 function harb(msg) {
+        var fff = d.getElementById('fuck');
+        fff.innerHTML = (harbcnt++) + "";
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST","http://localhost:6767/harbinger", true); // don't need a response
-	xhr.send( JSON.stringify({ "program":"cloth", "id":666, "dest":"", "msg":msg }) );
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState==4) {
+            try {
+              if (xhr.status==200) {
+                var xmldoc = xhr.responseXML;
+              }
+            } 
+            catch(e) {
+              alert('Error: ' + e.name);
+            }
+          }
+        };
+        var strout = JSON.stringify({ "program":"cloth", "id":666, "dest":"", "msg":msg });
+	xhr.open("POST","http://localhost:6767/harbinger/", true); //
+        xhr.setRequestHeader("Content-type", "text/plain");
+        //xhr.setRequestHeader("Content-length", strout.length);
+        //xhr.setRequestHeader("Connection", "close");           
+	xhr.send(strout); 
 }
 var harbqueue = new Array();
 function harbQueueValue() { return harbqueue.join("\n"); }
 function resetHarbQueue() {        harbqueue = new Array(); }
 function harbQueue(str)   {        harbqueue.push( str ); }
 
-// Stolen from http://js1k.com/demo/434
-http://www.andrew-hoyer.com/experiments/cloth
 
 d = document;
 c = d.getElementById('c');
@@ -27,7 +81,7 @@ b = c.getContext('2d');
 f = 10; //number of k (sq_rt)
 c.width = g = window.innerWidth - 25;
 c.height = j = window.innerHeight - 25;
-k=[]; //double array [y][x]
+
 l=[];
 q=0;
 r=.00125;
@@ -48,9 +102,6 @@ for(h=0, y=.05;h<f;h++,y+=.08) {
 k[0][0].i=0;
 k[0][9].i=0;
 
-function ptstr() {
-    return stringify(k);                  
-}
 
 function n() {
     b.clearRect(0, 0, g, j);
@@ -98,12 +149,12 @@ function n() {
         b.lineTo(t.x*g,t.y*j);
         b.stroke();
     }
-    harb(ptstr());
+
 }
 
-//r();
-
-setInterval(n, 35)
+//r()
+setInterval(harbsend, 50);
+setInterval(n, 30);
 z="onmouse";
 v=z+"move";
 d[z+"down"] = function(e) {
@@ -139,6 +190,9 @@ d.onkeydown=function(e) {
 d.onkeyup=function() {
 	o=1;
 } 
+
+
 				</script> 
+        <div id="fuck"></div>
 	</body> 
 </html>

@@ -7,8 +7,6 @@ $|=1;
 my $program = "bugs";
 my %bugs;
 my $instr_cnt=0;
-my $maxloud = 16000/100.0;
-my $HEIGHT = 10;
 
 my $orc = "csound/sine2.orc";
 my $sco = "csound/sine.sco";

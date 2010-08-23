@@ -38,7 +38,7 @@ while(1) {
         #                   to_json($req->{headers}), 
         #                   $req->{body});
 
-        print $cnt++,$/;#$response,$/;
+        print $cnt++.$/;#.$response.$/;
         if ($req->{body}) {
             eval {
                 my $code = from_json( $req->{body} );

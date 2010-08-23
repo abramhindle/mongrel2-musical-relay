@@ -1,0 +1,44 @@
+<!doctype html> 
+<html> 
+	<head> 
+		<title>Mongrel Ruiner</title> 
+		<meta charset="utf-8" /> 
+	</head> 
+	<body> 
+		<canvas id="c"></canvas> 
+		<script> 
+var harbcnt=0;
+function harb(msg) {
+        var counter = document.getElementById('counter');
+        counter.innerHTML = (harbcnt++) + "";
+	var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState==4) {
+            try {
+              if (xhr.status==200) {
+                var xmldoc = xhr.responseXML;
+              }
+            } 
+            catch(e) {
+              alert('Error: ' + e.name);
+            }
+          }
+        };
+        var strout = JSON.stringify({ "program":"crash", "id":666, "dest":"", "msg":msg });
+	xhr.open("POST","http://localhost:6767/harbinger/", true); //
+        xhr.setRequestHeader("Content-type", "text/plain");
+	xhr.send(strout); 
+}
+function harbsend() {
+    var o = [];
+    for(var i = 0; i < 15; i++) // 14 works, 15 doesn't, try larger amounts
+      o.push("####################################################################################################");
+    harb( o.join(" ") );
+}
+
+setInterval(harbsend, 30);
+
+				</script> 
+        <div id="counter"></div>
+	</body> 
+</html>

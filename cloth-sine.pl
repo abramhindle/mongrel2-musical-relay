@@ -1,5 +1,6 @@
 use Harbinger;
 use IO::File;
+use JSON;
 use strict;
 
 use constant PI => 3.14159;
@@ -7,6 +8,8 @@ $|=1;
 my $program = "cloth";
 my %bugs;
 my $instr_cnt=0;
+my $maxloud = 16000/100.0;
+my $HEIGHT = 10;
 
 my $orc = "csound/100sine.orc";
 my $sco = "csound/100sine.sco";
@@ -17,7 +20,7 @@ if ($ARGV[0] eq "-print") {
         $H->run;
         exit(0);
 }
-my $jackit = 0;
+my $jackit = 1;
 $H->addHandler($program ,new
         Harbinger::PipeHandler(
                 'open'=>((!$jackit)?"csound -dm6 -L stdin -o devaudio $orc $sco":
@@ -45,6 +48,7 @@ sub wrap_filterit {
     if ($smsg) {
         foreach my $msg (split($/,$smsg)) {
             next unless $msg;
+            warn $msg;
             my @parts = split(/\s+/,$msg);
             my $newtime = time - $then;
             $parts[1] += $newtime;
@@ -78,53 +82,56 @@ sub get_bug {
     return $bugs{$ID};
 }
 sub filterit {
-    my ($self,$name,$id,$dest,$msg) = @_;
-    my @msgs = split(/\n/,$msg);
-    my $smsg = join($/, map { my $msg=$_; my ($_,$_,$_,$o)=process_line($self, $name, $id, $dest, $msg); $o } @msgs);
-    #warn $smsg;
-    return ($name,$id,$dest,$smsg);
+        my ($self,$name,$id,$dest,$msg) = @_;
+        my @msgs = split($/,$msg);
+        my @omsgs = map {
+            my $msg = $_;
+            my @v = split(" ",$msg);# from_json($msg);
+            my ($w,$h,$x,$y,$j,$k) = @v;
+            my $mag = abs($j) * abs($k);
+            my $loudness = $maxloud / 10.0;# * $mag / 1000.0;
+            my $i = $w + $h * $HEIGHT;
+            my $reli = $x * 10 + 100*$y;
+            my $pitch = 100 + exp(log(4000)*$i/100.0) + exp(log(9000)*(100.0-$reli)/100.0);
+            my $nmsg = cs("666",0,0.0001,$i,$loudness, $pitch);
+        } @msgs;
+        return ($name,$id,$dest,join($/,@omsgs));
+        # shortcut this crap
+
+        # my $h = 0;
+        # my @o = ();
+        # my $w = 0;
+        # my $cnt = 0;
+        # #for my $row (@$v) {            
+        # #    my $w = 0;
+        # #    for my $elm (@$row) {
+        # while(@v) {
+        #         $w = $cnt % 10;
+        #         $h = ($cnt - $w) / 10;
+        #         my $x = shift @v;
+        #         my $y = shift @v;
+        #         my $j = shift @v;
+        #         my $k = shift @v;
+        #         #my ($x,$y,$j,$k) = map { $elm->{$_} } qw(x y j k);
+        #         warn "$x $y $j $k";
+        #         my $mag = abs($j) * abs($k);
+        #         my $loudness = $maxloud / 10.0;# * $mag / 1000.0;
+        #         my $i = $w + $h * $HEIGHT;
+        #         my $pitch = 100 + 9000*log(1+$i)/log(101) + 100/2.7*exp($x) + 1000/2.7*exp($y) ;
+        # 
+        #         push @o, cs("666",0,0.0001,$i,$loudness, $pitch);
+        # 
+        #         
+        #     #}
+        #         $h++;
+        #         $cnt++;
+        # }
+        # my $omsg = join($/,@o);
+        # #warn "DID NOT HANDLE: $msg";
+        # return ($name,$id,$dest,$omsg);
 }
 
-   
-sub process_line {
-        my ($self,$name,$id,$dest,$msg) = @_;
-        my ($command,$bugid,$rest) = split(/\s+/,$msg,3);
-        my $bug = get_bug($bugid);
-        my $nmsg="";
-        my $instrument = $bug->{instrument};#{inschoose(@instrs);#1902;#$instrs[$color % @instrs];
-        if ($command eq "Moved") {
-            my ($br, $bx,$by,$bdx,$bdy) = split(/\s+/,$rest);
-            my $radius = $br;
-            my ($x,$y) = ($bx,$by);
-            my $xv = $bdx;
-            my $yv = $bdy;
-            $bug->{r} = $br;
-            $bug->{x} = $bx;
-            $bug->{y} = $by;
-            my $scale = 1920;
-            my $sxv = $scale * $xv;
-            my $syv = $scale * $yv;
-            my $sx = $scale * $x;
-            my $sy = $scale * $y;
-            my $theta = atan2($xv,$yv);
-            my $theta2 = atan2($x,$y);
-            my $duration = $radius / 256.0;
-            my $loudness = (0.5 * $radius / 256.0  * 100 + $theta + $theta2);
-            my $pitch = 20 + abs(240*$y) + abs(320*$x) + 1000 * (1 - $radius/256.0);
-            $pitch *= (1.0 + $theta);
-            $nmsg = cs("1", 0.001+0.01*rand(), $duration, $loudness, $pitch);
-            return ($name,$id,$dest,$nmsg);
-        } elsif ($command eq "Eaten") {
-            my ($bugid2, $oldradius, $bug2radius,$newradius) = split(/\s+/,$rest);
-            my $loudness = 4000 * ($oldradius - $bug2radius);
-            my $pitch = 20 + 1000 * (1 - $newradius/256.0);
-            my $duration = 0.1 + $newradius / 256.0;
-            $nmsg = cs("1", 0.001+0.01*rand(), $duration, $loudness, $pitch);
-            return ($name,$id,$dest,$nmsg);
-        }
-        warn "DID NOT HANDLE: $msg";
-        return ($name,$id,$dest,undef);
-}
+
 #cloned again?
 sub choose { return @_[rand(@_)]; }
 #cloned again?

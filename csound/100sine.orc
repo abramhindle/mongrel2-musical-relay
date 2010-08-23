@@ -1,6 +1,6 @@
-      	sr = 22050      
+      	sr = 44100
 	kr = 2205       
-	ksmps = 10
+	ksmps = 20
 	nchnls = 1
 
 	instr	1
