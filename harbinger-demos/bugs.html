@@ -8,6 +8,28 @@
 	<body> 
 		<canvas id="c"></canvas> 
 		<script> 
+// Stolen from http://js1k.com/demo/248
+//             http://github.com/alexmic/js1k
+/*
+    js1k Submission - Alex Michael.
+    
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+    Copyright 2010 (c) Alex Michael.
+*/
+
 function harb(msg) {
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST","http://localhost:6767/harbinger", true); // don't need a response
@@ -18,10 +40,6 @@ function harbQueueValue() { return harbqueue.join("\n"); }
 function resetHarbQueue() {        harbqueue = new Array(); }
 function harbQueue(str)   {        harbqueue.push( str ); }
 
-// Stolen from http://js1k.com/demo/248
-/*
-    Copyright 2010 Alex Michael [unlicensed]
-*/
 var baseid = ~~(20000000*Math.random());
 var c = document.getElementById("c");
 c.width = c.height = WIDTH = HEIGHT = 500;
