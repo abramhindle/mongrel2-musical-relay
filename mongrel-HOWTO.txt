@@ -1,0 +1,44 @@
+Most of this is in mongrel2*/doc/manual/installing.tex
+sudo aptitude install uuid-dev
+sudo aptitude install csound
+
+wget http://mongrel2.org/static/downloads/mongrel2-1.0beta3.tar.bz2 (get the latest)
+http://zeromq.org
+wget http://pypi.python.org/packages/source/d/distribute/distribute-0.6.14.tar.gz#md5=ac607e05682116c06383b27a15e2db90
+wget http://pypi.python.org/packages/source/p/pip/pip-0.7.2.tar.gz#md5=cfe73090aaa0d3b0c104179a627859d1
+tar zxvf distribute-0.6.14.tar.gz
+cd distribute-0.6.14
+sudo python setup.py install
+cd ..
+cd pip-0.7.2
+sudo python setup.py install
+cd 
+wget http://www.zeromq.org/local--files/area:download/zeromq-2.0.8.tar.gz
+tar zxvf zeromg-*.tar.gz
+cd zeromq-2.0.8
+./configure && make && sudo make install
+cd ..
+sudo cpan ZeroMQ # this has a lot of deps seems like a real pro module
+# otherwise
+# git clone http://github.com/tsee/ZeroMQ-Perl.git
+# wget http://search.cpan.org/CPAN/authors/id/D/DM/DMAKI/ZeroMQ-0.02.tar.gz
+# cd ZeroMQ-0.02
+# perl Makefile.pl
+# make
+# make test # these failed for me!
+# sudo make install
+git clone http://github.com/zeromq/pyzmq.git
+cd pyzmq
+sudo python setup.py install
+cd ..
+# for examples
+sudo easy_install web.py 
+cd mongrel2_2010*
+make all
+sudo make install
+#test it
+m2sh
+cd ..
+git clone http://github.com/abramhindle/mongrel2-musical-relay.git
+cd mongrel2-musical-relay
+
