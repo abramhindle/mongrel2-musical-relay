@@ -9,6 +9,18 @@ harbinger = Handler(send_spec='tcp://127.0.0.1:9967',
                      recv_spec='tcp://127.0.0.1:9966',recv_ident='')
 
 
+
+settings = {"limits.buffer_size": 4096}
+
+myroute = {
+              r'/tests/': Dir(base='tests/', index_file='index.html',
+                             default_ctype='text/plain'),
+              r'/demos/': Dir(base='harbinger-demos/', index_file='index.html',
+                             default_ctype='text/plain'),
+              r'/handlertest': handler_test,
+              r'/harbinger': harbinger,
+          }
+
 main = Server(
     uuid="f400bf85-4538-4f7a-8908-67e313d515c2",
     access_log="/logs/access.log",
@@ -18,17 +30,18 @@ main = Server(
     pid_file="/run/mongrel2.pid",
     port=6767,
     hosts = [
-        Host(name="localhost", routes={
-            r'/tests/': Dir(base='tests/', index_file='index.html',
-                             default_ctype='text/plain'),
-            r'/demos/': Dir(base='harbinger-demos/', index_file='index.html',
-                             default_ctype='text/plain'),
-            r'/handlertest': handler_test,
-            r'/harbinger': harbinger,
-        })
+        #Host(name="localhost", routes={
+        Host(name="localhost", 
+             routes=myroute,
+        ),
+        Host(name="192.168.0.242", 
+             routes=myroute,
+        )
     ]
 )
 
-commit([main])
+#commit([main])
+commit([main], settings=settings)
+
 
 
