@@ -48,14 +48,14 @@ abram.hindle@softwareprocess.es
 
 
 =Introduction
-* What if we could use familar interfaces to make music
+* What if we could use familiar interfaces to make music
 * Could we co-opt other software and events to produce musical events?
-* Could we even use web interfaces and use javascript UIs?
+* Could we even use web interfaces and use java-script UIs?
 
 =Imagine
 * Extending your spread sheet into a soundboard or drum kit
 * Turning your paint program into a violin
-* Sonifying a boring website like ebay
+* Sonifying a boring website like eBay
 * Taking a flash game, a SVG program, or HTML5 program and using it as
 computer music input.
 
@@ -68,7 +68,7 @@ computer music input.
 * Abram will now show a demo of filler creep sonified
 
 =What was that?
-* Javascript game using Canvas
+* Java-script game using Canvas
 * Instrumented to send XMLHttpRequests to a mongrel2 server
 * Mongrel handler communicates to Harbinger
 ** Who munges messages, massages them and hands them to:
@@ -98,7 +98,7 @@ computer music input.
 =Ok.. but how do we communicate from the Web?
 * XMLHttpRequest
 ** AJAX
-** Send a background request from a web ui
+** Send a background request from a web UI
 * Mongrel2 and Mongrel2 Handler receives it
 ** Pass off to Harbinger
 
@@ -122,7 +122,7 @@ computer music input.
 ** ZeroMQ
 ** Mongrel2
 ** HTTP Handler
-** Javascript instrumentation
+** Java-script instrumentation
 
 =ZeroMQ
 * Fast messaging
@@ -140,7 +140,7 @@ cd zermq-*
 * Claims great cross language/platform network performance
 * Asynchronous and easily event driven
 ** large message sizes supported
-* Has perl support \texttt{cpan ZeroMQ}
+* Has Perl support \texttt{cpan ZeroMQ}
 ** you might have to skip the tests
 * We will come back to ZeroMQ
 * Appropriate for local, cross-core, cross-interconnect and
@@ -149,21 +149,21 @@ cross-network communication
 
 =Mongrel2
 * \url{http://mongrel2.org}
-* Based on popular ruby mongrel webserver
+* Based on popular ruby mongrel web-server
 ** Rails app server
-* Aims to be a stable and fast webserver
+* Aims to be a stable and fast web-server
 * Not really general purpose IMHO
 ** meant for application specialization
 * Seems fast to me 2.8ms response (1000 requests in 2.8 seconds in
-perl) (beta0)
+Perl) (beta0)
 * Not totally stable yet
 
 =Mongrel2
 * Zed Shaw's baby and he seems to care about it.
-* Too pythony right now
-** Uses sqlite for configuration BUT the config examples are all
+* Too Pythony right now
+** Uses SQLite for configuration BUT the config examples are all
 python and DSLish.
-* Requires zeromq and a lot of python 
+* Requires ZeroMQ and a lot of python 
 ** Getting python packages sucks.
 
 =Mongrel2 Config
@@ -178,7 +178,7 @@ python and DSLish.
 * mongrel will listen on ports for the handler
 ** Need a send port 
 ** Need a recv port
-* Handler needs an uuid ident (128bit)
+* Handler needs an UUID ident (128bit)
 * Our handler - the app
 \listpython{mongrel-harbinger.py}
 
@@ -186,8 +186,8 @@ python and DSLish.
 * Ok fine but how do we communicate with mongrel
 ** how do we serve an app?
 *** handlers!
-* ZeroMQ comes back, to communicate to mongrel you use json (yuck) and
-zeromq (yeah!)
+* ZeroMQ comes back, to communicate to mongrel you use JSOn (yuck) and
+ZeroMQ (yeah!)
 * Show http.py 
 * Show http.pl 
 
@@ -228,7 +228,7 @@ zeromq (yeah!)
 ** To transmit messages to the instrument
 ** Show http\_harbinger.pl
 
-=Javascript xmlhttprequest stuff
+=Java-script XMLHttpRequest stuff
 * You have to send messages back
 \listjavascript{harb.js}
 % \begin{verbatim}
@@ -244,7 +244,7 @@ zeromq (yeah!)
 % }
 % \end{verbatim}
 
-=Javascript xmlhttprequest stuff
+=Java-script XMLHttpRequest stuff
 * You might have to sample results instead of sending updates
 ** \texttt{setinterval(hardSender,100);}
 * You might have to queue things up or split them up
@@ -254,6 +254,12 @@ zeromq (yeah!)
 =Harbinger instrument
 * Show example instrument
 * demo example instrument
+
+=How can you use Mongrel?
+* Grab my Mongrel2.pm \url{http://ur1.ca/17bmn}
+* Grab my http\_harbinger.pl \url{http://ur1.ca/1a9zm}
+* Gut the http\_harbinger.pl and put your code in there
+* Use lestratt's Plack mongrel2 handler \url{http://ur1.ca/1aa17}
 
 =Caveats
 * Mongrel2 seems to be evolving quickly
@@ -273,6 +279,11 @@ zeromq (yeah!)
 ** Perl is the great glue that holds systems together
 ** Mongrel2 is fast enough for this job
 ** ZeroMQ is pretty interesting
+* Get this presentation and code at: 
+{\tiny
+\url{http://github.com/abramhindle/mongrel2-musical-relay}
+\url{http://softwareprocess.es/index.cgi/WebBasedComputerMusic}
+}
 
 =Garbage notes
 * \lstinputlisting[language=sh,breaklines=true]{../mongrel-HOWTO.txt}
