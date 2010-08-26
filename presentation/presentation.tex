@@ -1,6 +1,5 @@
-
-
 \documentclass[titlepage,usenames,a4,landscape,semhelv]{seminar}
+\usepackage{verbatim}
 \newcommand{\presenter}{Abram Hindle}
 \newcommand{\conference}{Toronto Perl Mongers August 2010}
 \newcommand{\gettitle}{Web Based Computer Music UIs with Mongrel2 and Harbinger}
@@ -75,14 +74,6 @@ computer music input.
 ** Who munges messages, massages them and hands them to:
 * CSound receives messages from Harbinger.
 
-=Ok.. but how do we communicate from Gnumeric?
-* Harbinger!
-** C Library for sending messages
-*** Just embed calls from within another program
-** A middle man
-*** receives these messages
-*** Delegates messages to other programs like CSound
-
 \newslide
 
 \begin{figure}
@@ -90,14 +81,26 @@ computer music input.
 \includegraphics[width=\textwidth]{harbinger}  
 \end{figure}
 
+\newslide
+
+\begin{figure}
+  \centering
+\includegraphics[width=\textwidth]{harbinger-example}  
+\end{figure}
 
 \newslide
 
 \begin{figure}
   \centering
-\includegraphics[width=\textwidth]{harbinger-example}
+\includegraphics[width=\textwidth]{mongrel2-example}  
 \end{figure}
 
+=Ok.. but how do we communicate from the Web?
+* XMLHttpRequest
+** AJAX
+** Send a background request from a web ui
+* Mongrel2 and Mongrel2 Handler receives it
+** Pass off to Harbinger
 
 =Harbinger
 * send connectionless messages encoded in plain text
@@ -114,151 +117,115 @@ computer music input.
 * No errors if there is no one receiving the message
 * Reduce dependencies.
 
-=Gnumeric
-* First configure and compile it
-** \texttt{./configure --prefix=whereuwant it}
-** \texttt{make \&\& make install}
+=Guts and Bolts
+* Let's get dirty, we're going to discuss and install:
+** ZeroMQ
+** Mongrel2
+** HTTP Handler
+** Javascript instrumentation
 
-=Gnumeric
-* So we want to see when a cell is selected or when the current cell changes.
-** grep for select, cell, update, change
-* Cells are parts of sheets maybe look for that too
-
-=Gnumeric
-* Interesting procs
-** scg\_object\_select
-** scg\_cursor\_move
-*** moves cursor down :(
-*** but calls sv\_cursor\_set
-
-=Gnumeric Guts
-* look for sv\_cursor\_set
-** src/sheet-view.c:sv\_cursor\_set
-** sv\_cursor\_set does place the cursor 
-*** sv\_set\_edit\_pos looks interesting though
-** Lets change sv\_cursor\_set
-
-=Gnumeric Debugging
-* added code to src/sheet-view.c
-** printed the view's current selection position
-** Good
-** This itself could be an instrument but I don't think it is enough
-
-=Gnumeric: Get a Cell
-* lets get a Cell Value
-* Look in sheet-view.h, there must be a spreadsheet in there
-** Yep sheet is in in sheet-view
-** Lets look at sheet.h and see how to get a cell
-*** \texttt{GnmCell  *sheet\_cell\_get(Sheet const *sheet, int col, int row);}
-*** This looks good..
-
-=Gnumeric: Cells
-* Journey to gnumeric.h
-** Where is \_GnmCell defined?
-*** cell.h and cell.c
-**** gnm\_cell\_get\_rendered\_text ?
-
-=Gnumeric: Cells
-* Added 
-  \texttt{puts( gnm\_cell\_get\_rendered\_text( sheet\_cell\_get( sv->sheet,sv->edit\_pos.col, sv->edit\_pos.row)));}
-** Got
-\texttt{** (lt-gnumeric:5366): CRITICAL **: gnm\_cell\_get\_rendered\_text: assertion `cell != NULL' failed ERROR}
-*** Although it did print values if it had them
-*** Need to add a null check
-
-=Gnumeric: Harbinger
-* Now lets use the Harbinger API
-* Remember to compile with -LHarbinger
-
-
-=OpenArena
-* Free datafiles
-* IOQuake3 Engine
-
-=Quake 3/IOQuake3/OpenArena
-* Not the easiest to modify
-** Contrary to existence of mods
-* Useful events
-** Gun fire
-** Collisions
-** Moving
-** Rocket/Bullet Trails
-
-=What to look for
-* Sound system events
-* Collision events
-* Ricochets
-
-=Quake 3 Arch notes
-* Client and Server
-* Game can be
-** Native Game Code
-** VM Code (QuakeC)
-*** VM Code can't call POSIX :(
-
-=Quake 3 Craziness
-* To deal w/ the VM
-** Anything that crosses the control/environment boundary
-*** calls a syscall
-* iD overloaded syscall with their own assembler based implementation
-** wow 
-
-=Quake 3
-* Easiest for us to direct modify Quake3
-* Compile to native code
-* Ignore the VM
-
-=Run IOQuake with our mods
-*  \begin{verbatim}
-     make && \
-     cd ./build/release-linux-x86_64/ && \
-     ./ioquake3.x86_64 +set sv_pure 0 \
-     +set vm_cgame 0 +set vm_game 0 \ 
-     +set vm_ui 0 +set s_initsound 0
+=ZeroMQ
+* Fast messaging
+* Wide variety of options
+* \url{http://zeromq.com/}
+\begin{verbatim}
+wget \
+ http://www.zeromq.org/local--files/area:download/zeromq-2.0.8.tar.gz
+tar zxvf zeromq*gz
+cd zermq-*
+./configure && make && sudo make install
 \end{verbatim}
 
+=ZeroMQ
+* Claims great cross language/platform network performance
+* Has perl support \texttt{cpan ZeroMQ}
+** you might have to skip the tests
+* We will come back to ZeroMQ
 
-\begin{comment}
-     Syscalls are good?
-     openarena needs ioquake
-     copy the baseq files to ioquake
-     so openarena is for data files
-     ioquake3 for code versio 1107 I think
-     also applied some openarena patches
-     to run quake I goto file:/home/abez/Desktop/quake3/ioquake3 and type
-     make ; cd build/release-linux-x86_64/ ; ./*smp*64* +set s_initsound 0 ; cd .. ; cd ..
-     our instrument:
-     file:/home/abez/projects/Harbinger/quake3-2.pl
-     cgame often gets compiled as a VM, we have to figure out how to compile cgame into a vm
-     and then load it..
-     essentially make a cgame mode
-     then probably have a syscall which accesses it
-     the server might have the same problem
-     although shoving stuff in the server would make a lot of sense since it runs once.
-     in client there is cg_syscall or something which catches syscalls then does a big case statement
-     thus a true blue mod would probably help alot although it might limit the ability to play..
-     a good idea would be to talk to ioquake people
-     make && ./build/release-linux-x86_64/ioquake3.x86_64 +set sv_pure 0 +set vm_cgame 0 +set vm_game 0 +set vm_ui 0 +set s_initsound 0
-     changed build to not make the vm..
-     file:/home/abez/projects/Harbinger
-     file:/projects/harbinger-quake3/quake3/ioquake3
+=Mongrel2
+* \url{http://mongrel2.org}
+* Based on popular ruby mongrel webserver
+** Rails app server
+* Aims to be a stable and fast webserver
+* Not really general purpose IMHO
+** meant for application specialization
+* Seems fast to me 2.8ms response (1000 requests in 2.8 seconds in
+perl) (beta0)
+* Not totally stable yet
 
-\end{comment}
+=Mongrel2
+* Too pythony right now
+** Uses sqlite for configuration BUT the config examples are all
+python and DSLish.
+* Requires zeromq and a lot of python 
+** Getting python packages sucks.
 
-=Other suggestions
-* GIMP, paint programs have nice UIs with lots of inform and tools.
-* Instant Messaging
-* follow strace
-* follow tcpdump
-* preload lib hooks and wrap calls
+=Mongrel2 
+* Control via m2sh, but first we need to make a config
+** Demo config file myconfig.py
+
+=Mongrel2
+* Ok fine but how do we communicate with mongrel
+** how do we serve an app?
+*** handlers!
+* ZeroMQ comes back, to communicate to mongrel you use json (yuck) and
+zeromq (yeah!)
+* Show http.py 
+* Show http.pl 
+
+=Mongrel2/ZeroMQ
+* mongrel will listen on ports for the handler
+** Need a send port 
+** Need a recv port
+* Handler needs an uuid ident (128bit)
+* our handler:
+\begin{verbatim}
+harbinger = Handler(
+  send_spec='tcp://127.0.0.1:9967',
+  send_ident='f8144414-ad7a-11df-9185-001bfce70aad',
+  recv_spec='tcp://127.0.0.1:9966',recv_ident='')
+\end{verbatim}
+
+=ZeroMQ and Perl
+* ZeroMQ module
+** Need a context object 
+*** DON'T LOSE IT
+*** Don't garbage collect it til you're done!
+=ZeroMQ Perl Example
+* 
+{\footnotesize
+\begin{verbatim}
+my $sender_id = 'f8144414-ad7a-11df-9185'. 
+  '-001bfce70aad';
+my $sub_addr = "tcp://127.0.0.1:9997";
+my $pub_addr = "tcp://127.0.0.1:9996";
+my $cxt = ZeroMQ::Context->new;
+my $req_socket = ZeroMQ::Socket->new($cxt, 
+  ZMQ_UPSTREAM);
+$req_socket->connect($sub_addr);
+my $resp_socket = ZeroMQ::Socket->new($cxt, 
+  ZMQ_PUB);
+$resp_socket->connect($pub_addr);
+$resp_socket->setsockopt( ZMQ_IDENTITY, 
+  $sender_id );
+while(my $req = $req_socket->recv) ...
+\end{verbatim}
+}
+
+=Mongrel2 http.pl
+* Skip http.py because you don't need it
+* Go through http.pl
+* Show Mongrel2.pm
+
+=Harbinger and Mongrel
+
 
 
 =Future Work
 * Fish or Cut Bait?
 ** Work on music
 ** Work on tools?
-** Restrictions versus freedom
-* Other UIs
+** Stream MP3s back?
 
 =Conclusions
 * Take home:
