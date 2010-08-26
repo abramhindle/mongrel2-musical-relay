@@ -5,6 +5,7 @@ config:
 reload:
 	m2sh reload -db myconfig.sqlite  -config myconfig.py -host localhost
 start:
+	mkdir run || echo lol
 	m2sh start -db myconfig.sqlite -host localhost
 
 tests:
