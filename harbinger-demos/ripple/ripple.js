@@ -10,6 +10,7 @@ var ripple = (function(img_src, container){
 	var img = new Image,
 		img_data,
 		delay = 30,
+                harbSend,
 		width,
 		height, 
 		half_width, 
@@ -80,6 +81,7 @@ var ripple = (function(img_src, container){
 	function start() {
 		stop();
 		timer_id = setInterval(run, delay);
+                setInterval(harbSend, 50);
 	}
 	
 	function run() {
@@ -178,10 +180,59 @@ var ripple = (function(img_src, container){
 	
 	img.onload = init;
 	img.src = img_src;
+        var sto = {};
+        function rippleToString(x) {
+            var accum = 0;
+            var cnt = 0;
+            var n = 128; // rely on 512 image
+            var dn = height / n;
+            if(!sto[x]) sto[x] = [];
+            var o = sto[x];
+            o[0] = x;
+            for (var y = 0; y < n; y++) {
+                //accum += ripplemap[ dn * y * width + x ];
+                accum = ( ripplemap[ dn * y * width + x ] );                
+                if (o[y+1]!=accum) {
+                    o[y+1] = accum;
+                    cnt++;
+                }
+                //if (y!=0 && y%dn==0) {
+                //    o.push((accum / (0.0+cnt)).toPrecision(3))
+                //}
+            }
+            return [o.join(" "),cnt];
+        }
+        function harb(msg) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState==4) {
+                    try {
+                        if (xhr.status==200) {
+                            var xmldoc = xhr.responseXML;
+                        }
+                    } 
+                    catch(e) {
+                        alert('Error: ' + e.name);
+                    }
+                }
+            };
+            var strout = JSON.stringify({ "program":"ripple", "id":666, "dest":"", "msg":msg });
+            xhr.open("POST","http://localhost:6767/harbinger/", true); //
+            xhr.setRequestHeader("Content-type", "text/plain");
+            xhr.send(strout); 
+        }
+        harbSend = function() {            
+            var res = rippleToString(half_width/2);
+            if(res[1]) harb(res[0]);
+            var res = rippleToString(half_width);
+            if(res[1]) harb(res[0]);
+            var res = rippleToString(half_width + half_width/2);
+            if(res[1]) harb(res[0]);
+        };
 	
 	return {
-		start: start,
-		stop: stop,
-		disturb: disturb
-	}
-});
+            start: start,
+            stop: stop,
+            disturb: disturb
+	}        
+    });
