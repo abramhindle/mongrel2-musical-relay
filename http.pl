@@ -57,7 +57,7 @@ sub mongrel_parse_request {
     my ($body,$_) = mongrel_parse_netstring( $rest );
     $headers = ($headers)?from_json( $headers ):{};
     my $data = {};
-    if ($headers->{method} eq 'JSON') {
+    if ($headers->{METHOD} eq 'JSON') {
         $data = from_json( $body );
     }
     return { sender => $sender,

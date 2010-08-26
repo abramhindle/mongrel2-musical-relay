@@ -138,9 +138,14 @@ cd zermq-*
 
 =ZeroMQ
 * Claims great cross language/platform network performance
+* Asynchronous and easily event driven
+** large message sizes supported
 * Has perl support \texttt{cpan ZeroMQ}
 ** you might have to skip the tests
 * We will come back to ZeroMQ
+* Appropriate for local, cross-core, cross-interconnect and
+cross-network communication
+
 
 =Mongrel2
 * \url{http://mongrel2.org}
@@ -154,15 +159,28 @@ perl) (beta0)
 * Not totally stable yet
 
 =Mongrel2
+* Zed Shaw's baby and he seems to care about it.
 * Too pythony right now
 ** Uses sqlite for configuration BUT the config examples are all
 python and DSLish.
 * Requires zeromq and a lot of python 
 ** Getting python packages sucks.
 
-=Mongrel2 
+=Mongrel2 Config
 * Control via m2sh, but first we need to make a config
-** Demo config file myconfig.py
+\listpython{really-basic-config.py}
+
+=Mongrel2 Routes
+* Routes are the paths that you react to
+\listpython{mongrel2-routes.py}
+
+=Mongrel2 Handlers
+* mongrel will listen on ports for the handler
+** Need a send port 
+** Need a recv port
+* Handler needs an uuid ident (128bit)
+* Our handler - the app
+\listpython{mongrel-harbinger.py}
 
 =Mongrel2
 * Ok fine but how do we communicate with mongrel
@@ -173,19 +191,6 @@ zeromq (yeah!)
 * Show http.py 
 * Show http.pl 
 
-=Mongrel2/ZeroMQ
-* mongrel will listen on ports for the handler
-** Need a send port 
-** Need a recv port
-* Handler needs an uuid ident (128bit)
-* our handler:
-\listpython{mongrel-harbinger.py}
-% \begin{verbatim}
-% harbinger = Handler(
-%   send_spec='tcp://127.0.0.1:9967',
-%   send_ident='f8144414-ad7a-11df-9185-001bfce70aad',
-%   recv_spec='tcp://127.0.0.1:9966',recv_ident='')
-% \end{verbatim}
 
 =ZeroMQ and Perl
 * ZeroMQ module
@@ -250,6 +255,12 @@ zeromq (yeah!)
 * Show example instrument
 * demo example instrument
 
+=Caveats
+* Mongrel2 seems to be evolving quickly
+* Bugs pop up and go away, so watch out
+* There are lots of settings to fiddle with in the manual
+** if you get strange behaviour maybe your buffers are not big enough.
+
 =Future Work
 * Fish or Cut Bait?
 ** Work on music
@@ -261,8 +272,10 @@ zeromq (yeah!)
 ** leverage the UIs of other software to produce music
 ** Perl is the great glue that holds systems together
 ** Mongrel2 is fast enough for this job
+** ZeroMQ is pretty interesting
 
-
+=Garbage notes
+* \lstinputlisting[language=sh,breaklines=true]{../mongrel-HOWTO.txt}
 
 =
 \end{slide}
