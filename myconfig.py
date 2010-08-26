@@ -36,6 +36,9 @@ main = Server(
         ),
         Host(name="192.168.0.242", 
              routes=myroute,
+        ),
+        Host(name="192.168.242.1",
+             routes=myroute,
         )
     ]
 )
