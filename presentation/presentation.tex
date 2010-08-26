@@ -179,12 +179,13 @@ zeromq (yeah!)
 ** Need a recv port
 * Handler needs an uuid ident (128bit)
 * our handler:
-\begin{verbatim}
-harbinger = Handler(
-  send_spec='tcp://127.0.0.1:9967',
-  send_ident='f8144414-ad7a-11df-9185-001bfce70aad',
-  recv_spec='tcp://127.0.0.1:9966',recv_ident='')
-\end{verbatim}
+\listpython{mongrel-harbinger.py}
+% \begin{verbatim}
+% harbinger = Handler(
+%   send_spec='tcp://127.0.0.1:9967',
+%   send_ident='f8144414-ad7a-11df-9185-001bfce70aad',
+%   recv_spec='tcp://127.0.0.1:9966',recv_ident='')
+% \end{verbatim}
 
 =ZeroMQ and Perl
 * ZeroMQ module
@@ -192,25 +193,25 @@ harbinger = Handler(
 *** DON'T LOSE IT
 *** Don't garbage collect it til you're done!
 =ZeroMQ Perl Example
-* 
-{\footnotesize
-\begin{verbatim}
-my $sender_id = 'f8144414-ad7a-11df-9185'. 
-  '-001bfce70aad';
-my $sub_addr = "tcp://127.0.0.1:9997";
-my $pub_addr = "tcp://127.0.0.1:9996";
-my $cxt = ZeroMQ::Context->new;
-my $req_socket = ZeroMQ::Socket->new($cxt, 
-  ZMQ_UPSTREAM);
-$req_socket->connect($sub_addr);
-my $resp_socket = ZeroMQ::Socket->new($cxt, 
-  ZMQ_PUB);
-$resp_socket->connect($pub_addr);
-$resp_socket->setsockopt( ZMQ_IDENTITY, 
-  $sender_id );
-while(my $req = $req_socket->recv) ...
-\end{verbatim}
-}
+* \listperl{http_example.pl}
+% {\footnotesize
+% \begin{verbatim}
+% my $sender_id = 'f8144414-ad7a-11df-9185'. 
+%   '-001bfce70aad';
+% my $sub_addr = "tcp://127.0.0.1:9997";
+% my $pub_addr = "tcp://127.0.0.1:9996";
+% my $cxt = ZeroMQ::Context->new;
+% my $req_socket = ZeroMQ::Socket->new($cxt, 
+%   ZMQ_UPSTREAM);
+% $req_socket->connect($sub_addr);
+% my $resp_socket = ZeroMQ::Socket->new($cxt, 
+%   ZMQ_PUB);
+% $resp_socket->connect($pub_addr);
+% $resp_socket->setsockopt( ZMQ_IDENTITY, 
+%   $sender_id );
+% while(my $req = $req_socket->recv) ...
+% \end{verbatim}
+% }
 
 =Mongrel2 http.pl
 * Skip http.py because you don't need it
@@ -218,8 +219,36 @@ while(my $req = $req_socket->recv) ...
 * Show Mongrel2.pm
 
 =Harbinger and Mongrel
+* Now using Mongrel2.pm we make a handler
+** To transmit messages to the instrument
+** Show http\_harbinger.pl
 
+=Javascript xmlhttprequest stuff
+* You have to send messages back
+\listjavascript{harb.js}
+% \begin{verbatim}
+% function harb(msg) {
+%   var xhr = new XMLHttpRequest();
+%   xhr.open("POST",
+%     "http://localhost:6767/harbinger", 
+%     true); 
+%   xhr.send( JSON.stringify(
+%     { "program":"filler", 
+%       "id":666, "dest":"", 
+%       "msg":msg }) );
+% }
+% \end{verbatim}
 
+=Javascript xmlhttprequest stuff
+* You might have to sample results instead of sending updates
+** \texttt{setinterval(hardSender,100);}
+* You might have to queue things up or split them up
+* You might have to change mongrel settings to allow for 
+  larger posts or gets
+
+=Harbinger instrument
+* Show example instrument
+* demo example instrument
 
 =Future Work
 * Fish or Cut Bait?
@@ -230,10 +259,9 @@ while(my $req = $req_socket->recv) ...
 =Conclusions
 * Take home:
 ** leverage the UIs of other software to produce music
-*** avoid wasting your time reinventing the wheel
 ** Perl is the great glue that holds systems together
-** avoiding complication helps for development speed
-*** Hurts for performance (sometimes)
+** Mongrel2 is fast enough for this job
+
 
 
 =
