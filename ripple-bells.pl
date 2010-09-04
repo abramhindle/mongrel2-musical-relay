@@ -39,7 +39,7 @@ sub filterit {
     my $instrdurmap = {
                        1 => 1,
                        2 => 1,
-                       3 => 5,
+                       3 => 10,
                       };
     my $instrument = $rowmap{$rowm} || 1;
     my $durv = $instrdurmap->{$instrument};

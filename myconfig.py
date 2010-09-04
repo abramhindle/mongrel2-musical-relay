@@ -10,7 +10,12 @@ harbinger = Handler(send_spec='tcp://127.0.0.1:9967',
 
 
 
-settings = {"limits.buffer_size": 4096}
+settings = {"limits.buffer_size": 128*1024,
+            "limits.content_length": 128*1024,
+            "limits.connection_stack_size": 128*1024,
+            "limits.handler_stack": 1048576,
+            "zeromq.threads": 4,
+            }
 
 myroute = {
               r'/tests/': Dir(base='tests/', index_file='index.html',
@@ -37,9 +42,6 @@ main = Server(
         Host(name="192.168.0.242", 
              routes=myroute,
         ),
-        Host(name="192.168.242.1",
-             routes=myroute,
-        )
     ]
 )
 
