@@ -67,14 +67,26 @@ function harbSend() {
 
 M=[0];      // edges, zeroth position is a dummy
 onkeydown=function(e){
-    // add a node
-    N[i=++n]={x:X,y:Y,v:0,w:0,m:1};
-    // add edges to selected nodes
-    for(j=n;k=N[j];j--)
-        if(!k.m&&!M[j]){
-            N[++n]={x:(X-k.x)/2,y:(Y-k.y)/2,v:0,w:0,m:1};
-            M[n]=[i,j]
+    // press X to unselect all
+    if (e.which == 88) { //X
+      for(j =1;j <= n;j++) {
+        k = N[j];
+        if (!k.m) {
+          k.m = 1;     
         }
+        
+      }
+    
+    } else {
+      // add a node
+      N[i=++n]={x:X,y:Y,v:0,w:0,m:1};
+      // add edges to selected nodes
+      for(j=n;k=N[j];j--)
+          if(!k.m&&!M[j]){
+              N[++n]={x:(X-k.x)/2,y:(Y-k.y)/2,v:0,w:0,m:1};
+              M[n]=[i,j]
+          }
+    }
 };
 C.onmousedown=function(e){
     // the blue part of the pixel encodes the node index
