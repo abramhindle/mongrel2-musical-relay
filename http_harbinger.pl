@@ -45,12 +45,12 @@ while(1) {
                 relay_harb( $sock, $code );
             };
             if ($@) {
-                $mongrel->reply_http( $req, "COULD NOT SEND");
+                $mongrel->reply_http( $req, "COULD NOT SEND $cnt");
             } else {
-                $mongrel->reply_http( $req, "OK");
+                $mongrel->reply_http( $req, "OK $cnt");
             }
         } else {
-            $mongrel->reply_http( $req, "NO BODY");
+            $mongrel->reply_http( $req, "NO BODY $cnt");
         }
         #$mongrel->reply_http( $req, $response);
     }

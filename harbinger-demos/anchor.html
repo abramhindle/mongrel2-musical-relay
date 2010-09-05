@@ -17,10 +17,33 @@ Bytes: 1016
 Chars: 1016
 */
 host=window.location.hostname;
+var queue = [];
+var sending = false;
 function harb(msg) {
-	var xhr = new XMLHttpRequest();
-	xhr.open("POST","http://"+host+":6767/harbinger", true); // don't need a response
-	xhr.send( JSON.stringify({ "program":"anchor", "id":666, "dest":"", "msg":msg }) );
+        queue.push(msg);
+        sendHarbQueue();
+}
+function sendHarbQueue() {
+        if (sending) {
+          // do nothing
+        } else {
+          var xhr = new XMLHttpRequest();
+   	  xhr.open("POST","http://"+host+":6767/harbinger", true);
+   	  //don't need a response
+          xhr.ontimeout = function() { sending = false; }
+          xhr.onreadystatechange = function() {
+            if(xhr.readyState==4) {
+              sending = false;
+              sendHarbQueue();
+	    }
+          };
+          var msg = queue.shift();
+          if (msg) {
+            sending = true;
+            xhr.send( JSON.stringify({ "program":"anchor", "id":(~~(20000*Math.random())),
+   	      "dest":"", "msg":msg }) );
+          }
+       }
 }
 
 
@@ -126,7 +149,9 @@ setInterval(Q=function(e){
             }
     }
 },9);
-setInterval(harbSend,30);
+setInterval(harbSend,100);
+//setInterval(sendHarbQueue,100);
+
 		</script> 
 	</body> 
 </html>

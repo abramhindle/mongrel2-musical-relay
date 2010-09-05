@@ -10,11 +10,12 @@ harbinger = Handler(send_spec='tcp://127.0.0.1:9967',
 
 
 
-settings = {"limits.buffer_size": 128*1024,
-            "limits.content_length": 128*1024,
-            "limits.connection_stack_size": 128*1024,
-            "limits.handler_stack": 1048576,
-            "zeromq.threads": 4,
+settings = {"limits.buffer_size": 1024*1024,
+            "limits.content_length": 1024*1024,
+            "limits.connection_stack_size": 32*1024,
+            "limits.handler_stack": 1024*1024,
+            "limits.dir_send_buffer": 32*1024,
+            "zeromq.threads": 1,
             }
 
 myroute = {
