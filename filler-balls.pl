@@ -11,7 +11,7 @@ if ($ARGV[0] eq "-print") {
         $H->run;
         exit(0);
 }
-my $jackit = 0;
+my $jackit = 1;
 $H->addHandler($program ,new
         Harbinger::PipeHandler(
                 'open'=>((!$jackit)?"csound -dm6 -L stdin -o devaudio planets.orc planets.sco":
