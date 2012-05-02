@@ -1,9 +1,9 @@
 test:
 	GET http://localhost:6767/handlertest
-config:
-	m2sh load -db myconfig.sqlite  -config myconfig.py
-reload:
-	m2sh reload -db myconfig.sqlite  -config myconfig.py -host localhost
+config: myconfig.conf
+	m2sh load -db myconfig.sqlite  -config myconfig.conf
+reload: myconfig.conf
+	m2sh reload -db myconfig.sqlite  -config myconfig.conf -host localhost
 start:
 	mkdir run || echo lol
 	m2sh start -db myconfig.sqlite -host localhost
