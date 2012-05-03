@@ -47,7 +47,7 @@ while(1) {
             if ($@) {
                 $mongrel->reply_http( $req, "COULD NOT SEND $cnt");
             } else {
-                $mongrel->reply_http( $req, "OK $cnt");
+                $mongrel->reply_http( $req, "<ok/>");# $cnt");
             }
         } else {
             $mongrel->reply_http( $req, "NO BODY $cnt");

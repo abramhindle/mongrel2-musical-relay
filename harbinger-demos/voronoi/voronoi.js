@@ -1,10 +1,15 @@
-
-host=window.location.hostname;
-
+var rate = 10.0;
+var host = window.location.hostname;
+var lastharb = 0;
 function harb(msg) {
+    var time = (new Date).getTime();
+    var diff = time - lastharb
+    if (diff > 1/rate) {
+        lastharb = time;
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST","http://"+host+":6767/harbinger", true); // don't need a response
 	xhr.send( JSON.stringify({ "program":"voronoi", "id":666, "dest":"", "msg":msg }) );
+    }
 }
 
 
@@ -23,7 +28,8 @@ var svg = d3.select("#chart")
     .on("mousemove", update);
 
 function disableDragging(e) {
-    e.preventDefault();
+  if(d3.event.preventDefault)
+    d3.event.preventDefault();
 }
 
 var vertices = d3.range(100).map(function(d) {
@@ -52,6 +58,7 @@ function polygonArea(coordinates) {
   return (ysum-xsum)/2
 }
 function update() {
+  disableDragging();
   vertices[0] = d3.mouse(this);
   if (debug==null) {
 	debug = document.getElementById("myDebug");
