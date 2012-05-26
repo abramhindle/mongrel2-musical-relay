@@ -6,12 +6,13 @@ csound.noisepages.com
 
 <CsoundSynthesizer>
 <CsInstruments>
-;sr = 44100
-;kr = 441
-sr=22050
-kr=147
-ksmps = 150
-nchnls = 2
+sr = 44100
+kr = 441
+;sr=22050
+;kr=147
+;ksmps = 150
+ksmps = 100
+nchnls = 1
 0dbfs = 1.0
 
 ; Instruments
@@ -90,7 +91,8 @@ instr $Synth
     ; Amp
     aenv linsegr 0, 0.205, 0.2, 0.1, 0.5, 2, 0.333, 0.2, 0
     asig = a1 * aenv * iamp
-    outs asig * sqrt(1 - ipan), asig * sqrt(ipan)
+    ;outs asig * sqrt(1 - ipan), asig * sqrt(ipan)
+    outs asig
 endin
 instr $Ssynth
     idur = p3          ; Duration
@@ -119,7 +121,8 @@ instr $Ssynth
     ; Amp
     aenv linsegr 0, 0.205, 0.2, 0.1, 0.5, 2, 0.333, 0.2, 0
     asig = a1 * aenv * kiamp
-    outs asig * sqrt(1 - ipan), asig * sqrt(ipan)
+    ;outs asig * sqrt(1 - ipan), asig * sqrt(ipan)
+    outs asig
 endin
 
 instr $Sset

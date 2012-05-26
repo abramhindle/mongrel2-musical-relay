@@ -13,11 +13,11 @@ if ($ARGV[0] eq "-print") {
         $H->run;
         exit(0);
 }
-my $jackit = 0;
+my $jackit = 1;
 $H->addHandler($program ,new
         Harbinger::PipeHandler(
                 'open'=>((!$jackit)?"csound -dm6 -L stdin -o devaudio planets.orc planets.sco":
-		                    "csound -dm6 -+rtaudio=jack  -o devaudio -b 400 -B 1200 -L stdin planets.orc planets.sco"),
+		                    "csound -dm6 -+rtaudio=jack  -o devaudio -b 400 -B 2048 -L stdin planets.orc planets.sco"),
                 autoflush=>1,
                 terminator=>$/,
                 filter=>\&wrap_filterit,
