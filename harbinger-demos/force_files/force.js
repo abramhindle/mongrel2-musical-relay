@@ -1,3 +1,4 @@
+
 var selectedNode = null;
 var circleRadius = 32;
 var defaultCharge = -1000;
@@ -130,7 +131,9 @@ var svg = d3.select("#chart").append("svg")
         var old = this.on("mousedown");
         this.on("mousedown", function(d) {
             selectedNode = this;
-            return old(d);
+            if (typeof old == "function") {
+                return old(d);
+            }
         });
     });
 /*
@@ -168,8 +171,9 @@ function showSelection() {
     //}
     if (selectedNode != null) {
 
-        document.getElementById("debug").innerHTML = JSON.stringify( selectedNode );
-        harb( { "client":clientID, "width":width, "height":height, "node":selectedNode } );
+        var str = JSON.stringify( { "client":clientID, "width":width, "height":height, "node":selectedNode } );
+        document.getElementById("debug").innerHTML = str
+        harb( str  );
     }
 }
 
