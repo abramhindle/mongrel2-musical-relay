@@ -97,7 +97,7 @@ instr buzz
       ab3 oscili    1,  39*100*icenterd/imaxd, 1
       ab4 oscili    1,  41*100*icenterd/imaxd, 1
       
-      out 1000*(ab1+ab2+ab3+ab4)/4 
+      out iamp*(ab1+ab2+ab3+ab4)/4 
 
 endin
 
@@ -121,7 +121,7 @@ instr growl
       ab3 oscili    1,  39, 1
       ab4 oscili    1,  41, 1
       
-      asum = 1000*(ab1+ab2+ab3+ab4)/4 
+      asum = iamp*(ab1+ab2+ab3+ab4)/4 
       aout distort1 asum, 0.3, 0.6, 0.1, 0.2
       
       out aout

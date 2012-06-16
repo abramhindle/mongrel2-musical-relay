@@ -2,9 +2,11 @@ package Force;
 use Harbinger;
 use IO::File;
 use JSON;
+use Data::Dumper;
 use strict;
 
 use constant PI => 3.14159;
+
 $|=1;
 my $program = "force";
 my $instr_cnt=0;
@@ -52,9 +54,11 @@ sub filterit {
         my $data =   $arr->{node}->{__data__};
         my $instr =  '"'.($instrmap{$data->{name}} || "None").'"';
         my ($dragged,$x,$y,$px,$py) = map { $data->{$_} } qw(fixed x y px py);
-        use Data::Dumper;
+
         warn Dumper($data, $clientstate{$client});
         my ($ldragged,$lx,$ly,$lpx,$lpy,$linstr) = map { $clientstate{$client}->{$_} } qw(fixed x y px py instr);
+
+        # if not the same
         if (floateq($lx,$x) && floateq($ly,$y) && $instr eq $linstr) {
             return ($name,$id,$dest,"");
         } else {
@@ -63,10 +67,10 @@ sub filterit {
                 $clientstate{$client}->{$_} = $data->{$_};
             } qw(fixed x y px py);
         }
-
+        my $maxdist  = sqrt( $width * $width + $height * $height );
         my $duration = 0.1;
         my $distance = sqrt(sqr($x - $px) + sqr($y - $py));
-        my $loudness = min(1000,max(10, $distance));
+        my $loudness = min( 1000, max( 10, 1000 * $distance / $maxdist ) );
         my $nmsg = cs($instr, 0.01, $duration, $loudness, $distance, $x, $y, $px, $py, $width, $height);
         return ($name,$id,$dest,$nmsg);
 }
