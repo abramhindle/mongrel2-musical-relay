@@ -46,7 +46,7 @@ instr hiss
       imaxd = sqrt(iw * iw + ih * ih) 
 
       ; white noise bandpass filtered 
-      kenv     linseg    0, .01, 1, p3-.02, 1, .01, 0      
+      kenv     linseg    0, .01, iamp, p3-.02, 1, .01, 0      
       awhite rand   1
       ahigh butterbp awhite, 8000, 1000
       
@@ -93,9 +93,9 @@ instr buzz
 
       ; low noise
       ab1 oscili    1,  30*100*icenterd/imaxd, 1
-      ab2 oscili    1,  33*100*icenterd/imaxd, 1
-      ab3 oscili    1,  39*100*icenterd/imaxd, 1
-      ab4 oscili    1,  41*100*icenterd/imaxd, 1
+      ab2 oscili    1,  60*100*icenterd/imaxd, 1
+      ab3 oscili    1,  120*100*icenterd/imaxd, 1
+      ab4 oscili    1,  240*100*icenterd/imaxd, 1
       
       out iamp*(ab1+ab2+ab3+ab4)/4 
 
@@ -120,8 +120,9 @@ instr growl
       ab2 oscili    1,  33, 1
       ab3 oscili    1,  39, 1
       ab4 oscili    1,  41, 1
+      ab5 oscili    1,  (40+idist), 1
       
-      asum = iamp*(ab1+ab2+ab3+ab4)/4 
+      asum = (10+iamp)*(ab1+ab2+ab3+ab4+ab5)/5
       aout distort1 asum, 0.3, 0.6, 0.1, 0.2
       
       out aout

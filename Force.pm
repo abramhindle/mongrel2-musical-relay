@@ -70,7 +70,7 @@ sub filterit {
         my $maxdist  = sqrt( $width * $width + $height * $height );
         my $duration = 0.1;
         my $distance = sqrt(sqr($x - $px) + sqr($y - $py));
-        my $loudness = min( 1000, max( 10, 1000 * $distance / $maxdist ) );
+        my $loudness = min( 1000, max( 10, 5000 * $distance / $maxdist ) );
         my $nmsg = cs($instr, 0.01, $duration, $loudness, $distance, $x, $y, $px, $py, $width, $height);
         return ($name,$id,$dest,$nmsg);
 }
