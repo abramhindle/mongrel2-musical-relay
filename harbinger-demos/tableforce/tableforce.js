@@ -143,10 +143,10 @@ function mkNode( node ) {
 function showSelection() {
     if (selectedNode != null) {
         var str = JSON.stringify( { "off":getOffset(selectedNode), "client":clientID, "w":width, "h":height, "node":mkNode(selectedNode) } );
-        document.getElementById("debug").innerHTML = str;
+        //document.getElementById("debug").innerHTML = str;
         harb( str  );
     } else {
-        document.getElementById("debug").innerHTML = ""
+        //document.getElementById("debug").innerHTML = ""
     }
 }
 
