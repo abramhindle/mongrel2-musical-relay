@@ -1,0 +1,93 @@
+<!doctype html> 
+<html> 
+  <head> 
+    <title>Button</title> 
+    <meta charset="utf-8" /> 
+    <script src="json2.js"></script>
+    <style type="text/css" media="screen">
+    * { 
+        margin: 0; 
+    }
+
+    html, 
+    body { 
+        height: 100%; 
+    }
+
+    #table {
+        min-height: 100%;
+        height:     auto !important;
+        height:     100%;
+    }
+
+    </style>
+</head>
+
+  </head> 
+  <body> 
+      <div id="header" valign="center" halign="center" style="height: 10%">
+        <center>
+          <font size=7>
+            <div id="seconds" name="seconds">
+              -1
+            </div>
+          </font>
+        </center>
+      </div>    
+      <button onclick="javascript:fire()"  style="height: 90%; width: 100%;">
+          <font size=100>
+            FIRE
+          </font>
+        </button>
+      <script> 
+      
+var host=window.location.hostname;
+function harb(msg) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST","http://"+host+":6767/harbinger", true); // don't need a response
+	xhr.send( JSON.stringify({ "program":"button", "id":666, "dest":"", "msg":msg }) );
+}
+
+
+var counter = 0;
+var startTime = 0;
+var lastTime = 0;
+
+
+function utime() {
+    var ts = Math.round((new Date()).getTime() / 1000);
+    return ts;
+}
+
+function init() {
+    var now = utime();
+    startTime = now;
+    lastTime = now;
+    counter = 0;
+
+}
+
+function updateCounter() {
+    var now = utime();
+    var diff = Math.max(0,now - lastTime);
+    lastTime = now;
+    counter += diff;
+    var div = document.getElementById("seconds");
+    div.innerHTML = "" + counter;
+
+}
+
+function fire() {
+    harb( {"counter":counter} );
+    init();
+}
+
+
+init();
+updateCounter();
+setInterval(updateCounter,250);
+
+      </script> 
+
+  </body> 
+</html>
