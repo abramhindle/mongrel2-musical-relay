@@ -40,12 +40,19 @@
           </font>
         </button>
       <script> 
-      
+ function randInt(i) {
+    return Math.floor( Math.random() * i );
+}
+
+var clientID = randInt( 2000000000 );
+     
 var host=window.location.hostname;
 function harb(msg) {
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST","http://"+host+":6767/harbinger", true); // don't need a response
-	xhr.send( JSON.stringify({ "program":"button", "id":666, "dest":"", "msg":msg }) );
+        // was button
+        xhr.setRequestHeader("Content-type", "text/plain");
+	xhr.send( JSON.stringify({ "program":"cloth", "id":666, "dest":"", "msg":msg }) );
 }
 
 
@@ -78,7 +85,8 @@ function updateCounter() {
 }
 
 function fire() {
-    harb( {"counter":counter} );
+    //harb( {"counter":counter} );
+    harb( clientID + "\nbell " + counter + "\n" );
     init();
 }
 

@@ -3,7 +3,7 @@ use Harbinger;
 use IO::File;
 use JSON;
 use strict;
-
+use List::Util qw(min max);
 use constant PI => 3.14159;
 $|=1;
 my $program = "cloth";
@@ -54,11 +54,27 @@ sub get_bug {
     }
     return $bugs{$ID};
 }
+sub escale {
+    my ($x) = @_;
+    return (exp($x) - 1.0)/(exp(1)-1.0)
+}
 sub filterit {
         my ($self,$name,$id,$dest,$msg) = @_;
         my @msgs = split($/,$msg);
         my $clientID = shift @msgs;
         chomp($clientID);
+        if (@msgs && $msgs[0] =~ /^bell/) {
+            my $bell = $msgs[0];
+            chomp($bell);
+            my ($dur) = ($bell =~ /bell\s+(\d+)\s*$/);
+            warn "$bell :: $dur";
+            my $duration = 0.01 + escale(max(0, min($dur, 100))/100.0) * 15;
+            my $pitch = 20 + $clientID % 10 * 10 + 4000*$duration/15;
+            my $loudness = 300+20000 * escale($duration/16.0);
+            my $nmsg = cs('"bell"',0.001, $duration, $loudness, $pitch);
+            warn $nmsg;
+            return ($name,$id,$dest,$nmsg);
+        }
         my @omsgs = map {
             my $msg = $_;
             my @v = split(" ",$msg);# from_json($msg);
