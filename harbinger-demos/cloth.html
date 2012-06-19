@@ -11,6 +11,14 @@
 // Stolen from http://js1k.com/demo/434
 // http://www.andrew-hoyer.com/experiments/cloth
 // (c) 2010 Andrew Hoyer
+
+function randInt(i) {
+    return Math.floor( Math.random() * i );
+}
+
+var clientID = randInt( 2000000000 );
+
+
 host=window.location.hostname;
 
 k=[]; //double array [y][x]
@@ -28,7 +36,7 @@ function harbsend() {
     // send every 10 nodes out
     var p = 3;
     for(var h = 0; h < f; h++) {
-      var o = [];
+      var o = [clientID];
       for(var w = 0; w < f; w++) {
         var v = k[h][w];
         o.push([ w, h,
@@ -79,7 +87,7 @@ function harbQueue(str)   {        harbqueue.push( str ); }
 d = document;
 c = d.getElementById('c');
 b = c.getContext('2d');
-f = 10; //number of k (sq_rt)
+f = 6; //number of k (sq_rt)
 c.width = g = window.innerWidth - 25;
 c.height = j = window.innerHeight - 25;
 
@@ -101,7 +109,7 @@ for(h=0, y=.05;h<f;h++,y+=.08) {
     }
 }
 k[0][0].i=0;
-k[0][9].i=0;
+k[0][f-1].i=0;
 
 
 function n() {
@@ -154,7 +162,8 @@ function n() {
 }
 
 //r()
-setInterval(harbsend, 50);
+// was 50
+setInterval(harbsend, 150);
 setInterval(n, 30);
 z="onmouse";
 v=z+"move";

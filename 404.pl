@@ -57,7 +57,7 @@ my %apps = (
             cloth => {
                       name => "Cloth",
                       url => "/demos/cloth.html",
-                      allowed => $notandroid,
+                      allowed => $dfl,
                      },
             button => {
                       name => "Virtual Triangle",

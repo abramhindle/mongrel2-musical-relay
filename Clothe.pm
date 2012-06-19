@@ -57,6 +57,8 @@ sub get_bug {
 sub filterit {
         my ($self,$name,$id,$dest,$msg) = @_;
         my @msgs = split($/,$msg);
+        my $clientID = shift @msgs;
+        chomp($clientID);
         my @omsgs = map {
             my $msg = $_;
             my @v = split(" ",$msg);# from_json($msg);
@@ -64,10 +66,10 @@ sub filterit {
             my $mag = abs($j) * abs($k);
 
             my $i = $w + $h * $HEIGHT;
-            my $lastx = $points{$i}->{x} || 0;
-            my $lasty = $points{$i}->{y} || 0;
-            $points{$i}->{x} = $x;
-            $points{$i}->{y} = $y;
+            my $lastx = $points{$clientID}->{$i}->{x} || 0;
+            my $lasty = $points{$clientID}->{$i}->{y} || 0;
+            $points{$clientID}->{$i}->{x} = $x;
+            $points{$clientID}->{$i}->{y} = $y;
             my $dx = $x - $lastx;
             my $dy = $y - $lasty;
             my $reli = $x * 10 + 100*$y;
