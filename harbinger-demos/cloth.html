@@ -11,6 +11,7 @@
 // Stolen from http://js1k.com/demo/434
 // http://www.andrew-hoyer.com/experiments/cloth
 // (c) 2010 Andrew Hoyer
+host=window.location.hostname;
 
 k=[]; //double array [y][x]
 
@@ -63,7 +64,7 @@ function harb(msg) {
           }
         };
         var strout = JSON.stringify({ "program":"cloth", "id":666, "dest":"", "msg":msg });
-	xhr.open("POST","http://localhost:6767/harbinger/", true); //
+	xhr.open("POST","http://"+host+":6767/harbinger/", true); //
         xhr.setRequestHeader("Content-type", "text/plain");
         //xhr.setRequestHeader("Content-length", strout.length);
         //xhr.setRequestHeader("Connection", "close");           
