@@ -7,6 +7,7 @@ my $sender_id = "bcd0e1af-b05c-43ea-a4a8-f589b555c867";
 
 my $sub_addr = "tcp://127.0.0.1:9977";
 my $pub_addr = "tcp://127.0.0.1:9978";
+my $route_addr = "http://10.20.30.1";
 
 my $mongrel = Mongrel2::mongrel_init( $sender_id, $sub_addr, $pub_addr );
 
@@ -30,38 +31,51 @@ my $notandroid = sub {
     }
     return 1;
 };
+# no iphone clients
+my $notiphone = sub {
+    my $ua = shift;
+    if ($ua =~ /iphone/i) {
+        return 0;
+    }
+    return 1;
+};
+
+
+my $notphone = sub {
+	return &{$notandroid}() && &{$notiphone}();
+};
 
 
 my %apps = (
             force => {
                       name => "Force",
-                      url => "/demos/force_files/force.html",
+                      url => "$route_addr/demos/force_files/force.html",
                       allowed => $notandroid2,
                      },
             voronoi => {
                       name => "Voronoi",
-                      url => "/demos/voronoi/voronoi.html",
+                      url => "$route_addr/demos/voronoi/voronoi.html",
                       allowed => $notandroid2,
                      },
             tableforce => {
                       name => "Blocks",
-                      url => "/demos/tableforce/tableforce.html",
+                      url => "$route_addr/demos/tableforce/tableforce.html",
                       allowed => $dfl,
                      },
 
             bouncey => {
                         name => "Bouncey",
-                        url => "/demos/bouncey.html",
+                        url => "$route_addr/demos/bouncey.html",
                         allowed => $dfl,
                        },
             cloth => {
                       name => "Cloth",
-                      url => "/demos/cloth.html",
-                      allowed => $dfl,
+                      url => "$route_addr/demos/cloth.html",
+                      allowed => $notphone,
                      },
             button => {
                       name => "Virtual Triangle",
-                      url => "/demos/button.html",
+                      url => "$route_addr/demos/button.html",
                       allowed => $dfl,
                      },
 
