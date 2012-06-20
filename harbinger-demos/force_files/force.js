@@ -175,6 +175,7 @@ function showSelection() {
         var sd = selectedNode["__data__"];
         var node = {
             "__data__":{
+                "name":sd.name,
                 "fixed":sd.fixed,
                 "x":sd.x,
                 "y":sd.y,
