@@ -76,5 +76,5 @@ function update() {
   var out = { 'area':parea, 'narea':narea, 'perimiter':perimiter, 'x':vertices[0][0], 'y':vertices[0][1] };
   var sout = JSON.stringify(out);
   harb(sout);
-  debug.innerHTML = sout;
+  //debug.innerHTML = sout;
 }
