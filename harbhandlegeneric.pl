@@ -8,7 +8,7 @@ use constant PI => 3.14159;
 my $program = "voronoi";
 
 my $H = Harbinger->new(port=>30666);
-my $jackit = 0;
+my $jackit = 1;
 
 use Vornoi;
 Vornoi::register($H, $jackit);
