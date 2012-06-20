@@ -21,7 +21,7 @@ sub register {
 	$H->addHandler($program ,new
 	        Harbinger::PipeHandler(
 	                'open'=>((!$jackit)?"csound -dm6 -L stdin -o devaudio $orc $sco":
-			                    "csound -dm6 -+rtaudio=jack  -o devaudio -b 400 -B 2048 -L stdin $orc $sco"),
+			                    "csound -dm6 -+rtaudio=jack -+jack_client=csoundClothe -o devaudio -b 400 -B 2048 -L stdin $orc $sco"),
 	                #'open'=>'/bin/cat',
 	                autoflush=>1,
 	                terminator=>$/,

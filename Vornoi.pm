@@ -13,7 +13,7 @@ sub register {
 	$H->addHandler($program ,new
 	        Harbinger::PipeHandler(
 	                'open'=>((!$jackit)?"csound -dm6 -L stdin -o devaudio planets.orc planets.sco":
-			                    "csound -dm6 -+rtaudio=jack  -o devaudio -b 400 -B 2048 -L stdin planets.orc planets.sco"),
+			                    "csound -dm6 -+rtaudio=jack -+jack_client=csoundVoronoi -o devaudio -b 400 -B 2048 -L stdin planets.orc planets.sco"),
 	                autoflush=>1,
 	                terminator=>$/,
 	                filter=>\&filterit,
