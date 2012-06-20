@@ -172,8 +172,17 @@ function showSelection() {
     //    document.getElementById("debug").innerHTML = "NULL";
     //}
     if (selectedNode != null) {
-
-        var str = JSON.stringify( { "client":clientID, "width":width, "height":height, "node":selectedNode } );
+        var sd = selectedNode["__data__"];
+        var node = {
+            "__data__":{
+                "fixed":sd.fixed,
+                "x":sd.x,
+                "y":sd.y,
+                "px":sd.px,
+                "py":sd.py
+            }
+        };
+        var str = JSON.stringify( { "client":clientID, "width":width, "height":height, "node":node } );
         document.getElementById("debug").innerHTML = str
         harb( str  );
     }
