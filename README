@@ -48,3 +48,6 @@ Have fun.
 `-- tests
     `-- sample.html -- Sample.html
 
+settings: set file handles high in /etc/./security/limits.conf
+*		soft	nofile		12000
+privbind -u hindle1 -n 1 make start

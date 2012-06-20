@@ -49,7 +49,7 @@ var clientID = randInt( 2000000000 );
 var host=window.location.hostname;
 function harb(msg) {
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST","http://"+host+":6767/harbinger", true); // don't need a response
+	xhr.open("POST","http://"+host+"/harbinger", true); // don't need a response
         // was button
         xhr.setRequestHeader("Content-type", "text/plain");
 	xhr.send( JSON.stringify({ "program":"cloth", "id":666, "dest":"", "msg":msg }) );
