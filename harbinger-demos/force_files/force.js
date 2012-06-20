@@ -116,6 +116,7 @@ var svg = d3.select("#chart").append("svg")
       .data(links)
     .enter().append("line")
       .attr("class", "link")
+      .style("stroke", "yellow")
       .style("stroke-width", function(d) { return Math.sqrt(d.value); });
 
   var node = svg.selectAll("circle.node")
@@ -123,6 +124,7 @@ var svg = d3.select("#chart").append("svg")
     .enter().append("circle")
       .attr("class", "node")
       .attr("r", circleRadius)
+      .style("stroke", "yellow")
       .style("fill", function(d) { return color(d.group); })
     .call(force.drag);
     svg.selectAll("circle.node")
