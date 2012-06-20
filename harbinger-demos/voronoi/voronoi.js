@@ -7,7 +7,7 @@ function harb(msg) {
     if (diff > 1/rate) {
         lastharb = time;
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST","http://"+host+":6767/harbinger", true); // don't need a response
+	xhr.open("POST","http://"+host+"/harbinger", true); // don't need a response
 	xhr.send( JSON.stringify({ "program":"voronoi", "id":666, "dest":"", "msg":msg }) );
     }
 }

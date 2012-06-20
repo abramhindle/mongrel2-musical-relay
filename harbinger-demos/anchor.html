@@ -28,7 +28,7 @@ function sendHarbQueue() {
           // do nothing
         } else {
           var xhr = new XMLHttpRequest();
-   	  xhr.open("POST","http://"+host+":6767/harbinger", true);
+   	  xhr.open("POST","http://"+host+"/harbinger", true);
    	  //don't need a response
           xhr.ontimeout = function() { sending = false; }
           xhr.onreadystatechange = function() {

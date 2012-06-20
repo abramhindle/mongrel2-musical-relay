@@ -32,7 +32,7 @@
 
 function harb(msg) {
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST","http://localhost:6767/harbinger", true); // don't need a response
+	xhr.open("POST","http://localhost/harbinger", true); // don't need a response
 	xhr.send( JSON.stringify({ "program":"bugs", "id":666, "dest":"", "msg":msg }) );
 }
 var harbqueue = new Array();

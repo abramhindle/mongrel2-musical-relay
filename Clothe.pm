@@ -3,7 +3,7 @@ use Harbinger;
 use IO::File;
 use JSON;
 use strict;
-use List::Util qw(min max);
+#use List::Util qw(min max);
 use constant PI => 3.14159;
 $|=1;
 my $program = "cloth";
@@ -138,5 +138,6 @@ sub filterit {
 sub choose { return @_[rand(@_)]; }
 #cloned again?
 sub min { ($_[0] > $_[1])?$_[1]:$_[0] }
+sub max { ($_[0] < $_[1])?$_[1]:$_[0] }
 
 1;

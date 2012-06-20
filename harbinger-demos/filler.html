@@ -222,7 +222,7 @@ function changeAI( aiName ) {
 
 function harb(msg) {
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST","http://localhost:6767/harbinger", true); // don't need a response
+	xhr.open("POST","http://localhost/harbinger", true); // don't need a response
 	xhr.send( JSON.stringify({ "program":"filler", "id":666, "dest":"", "msg":msg }) );
 }
 

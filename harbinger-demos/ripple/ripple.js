@@ -217,7 +217,7 @@ var ripple = (function(img_src, container){
                 }
             };
             var strout = JSON.stringify({ "program":"ripple", "id":666, "dest":"", "msg":msg });
-            xhr.open("POST","http://localhost:6767/harbinger/", true); //
+            xhr.open("POST","http://localhost/harbinger/", true); //
             xhr.setRequestHeader("Content-type", "text/plain");
             xhr.send(strout); 
         }
