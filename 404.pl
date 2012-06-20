@@ -42,7 +42,8 @@ my $notiphone = sub {
 
 
 my $notphone = sub {
-	return &{$notandroid}() && &{$notiphone}();
+	my ($ua) = @_;
+	return &{$notandroid}($ua) && &{$notiphone}($ua);
 };
 
 
