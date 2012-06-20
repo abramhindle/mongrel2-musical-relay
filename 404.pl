@@ -97,6 +97,7 @@ while(1) {
         next;
     } else {
         my $ua = $req->{'headers'}->{'user-agent'};
+	warn $ua;
         my $host = $req->{'headers'}->{'host'};
         my $choice = undef;
         while (!defined($choice)) {            
