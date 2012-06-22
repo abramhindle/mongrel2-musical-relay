@@ -48,6 +48,20 @@ Have fun.
 `-- tests
     `-- sample.html -- Sample.html
 
+For swarmed you need:
+dnsmasq
+iptables
+privbind
+jackd
+qjackctl
+jack_connect
+
 settings: set file handles high in /etc/./security/limits.conf
 *		soft	nofile		12000
 privbind -u hindle1 -n 1 make start
+
+in sudoers
+
+hindle1 ALL=(ALL) NOPASSWD: /usr/sbin/privbind
+
+
