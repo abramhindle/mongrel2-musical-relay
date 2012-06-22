@@ -33,7 +33,7 @@ while(1) {
 	my $test = $testfiles[rand(@testfiles)];
 	$test = $tests{$test};
 	my $data = $test->{data};
-	my $ua = LWP::UserAgent->new();
+	my $ua = LWP::UserAgent->new(keep_alive =>1);
 	my ($starttime, $microseconds) = gettimeofday();
 	foreach my $hash (@{$data}) {
 		my ($nowtime, $microseconds) = gettimeofday();
