@@ -11,7 +11,7 @@ use strict;
 $| = 1;
 my $processes = shift @ARGV || 20;
 my $pm = Parallel::ForkManager->new($processes);
-my $replacehost = undef;
+my $replacehost = "10.20.30.1";
 
 my @testfiles = <test.*>;
 my %tests = ();
@@ -33,7 +33,7 @@ while(1) {
 	my $test = $testfiles[rand(@testfiles)];
 	$test = $tests{$test};
 	my $data = $test->{data};
-	my $ua = LWP::UserAgent->new();
+	my $ua = LWP::UserAgent->new( keep_alive => 1 );
 	my ($starttime, $microseconds) = gettimeofday();
 	foreach my $hash (@{$data}) {
 		my ($nowtime, $microseconds) = gettimeofday();
@@ -54,10 +54,12 @@ while(1) {
 			my $res = $ua->request( $req );
 			my $succ = $res->is_success;
 			warn $res->is_success unless $succ == 1;
+			print STDERR ".";
 		};
 		if ($@) {
 			warn "ERROR  $@";
 		}
+		#usleep(1000);
 	}
 	$pm->finish;
 }
