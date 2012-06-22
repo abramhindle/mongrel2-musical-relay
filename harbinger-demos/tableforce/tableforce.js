@@ -76,7 +76,9 @@ d3.select("#viz")
     .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) 
     .on("mouseout", function(){d3.select(this).style("background-color", "white")}) 
     .on("mouseout", function(){d3.select(this).style("background-color", d3.select(this).data()[0].color)}) 
-    .on("mousedown", animateFirstStep)
+    .on("mousedown", function() { if(d3.event.preventDefault) d3.event.preventDefault();
+ })
+    .on("click", animateFirstStep)
     .text(function(d){return d.name;})
     .style("font-size", "12px");
 

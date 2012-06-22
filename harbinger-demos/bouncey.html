@@ -4,10 +4,12 @@
 	<head> 
 		<title>SWARMED: Bouncy [JS1k, 1k demo submission [385]]</title> 
 		<meta charset="utf-8" /> 
+                <meta content='width=device-width; height=device-height; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;' name='viewport' />
+                <meta name="viewport" content="width=device-width" />
             	<script src="json2.js"></script>
 	</head> 
-	<body bgcolor="black"> 
-		<canvas id="c"></canvas> 
+	<body bgcolor="black" height="100%" width="100%"> 
+		<canvas id="c" width="100%" height="100%"></canvas> 
 		<script> 
 
 host=window.location.hostname;
@@ -40,8 +42,8 @@ E=M.abs;
 R=M.random;
 ID="BOUNCE:" + (~~(20000000*R()));
 C=document.body.children[Q=0];
-C.width=W=innerWidth;
-C.height=H=innerHeight-6;
+C.width=W=window.innerWidth;
+C.height=H=window.innerHeight-6;
 X=C.getContext("2d");
 X.m=X.moveTo;
 X.l=X.lineTo;
@@ -49,7 +51,7 @@ P=200;
 cnt=0;
 A=[d={x:W/2,y:H/2,r:30},a={x:0,y:0},b={x:0,y:0,p:0,q:0,r:20},c={x:0,y:0}];
 onmousemove=function(e){a.x=e.pageX;a.y=e.pageY};
-onclick=function(){};//Q=~Q};
+onclick=onmousemove;//function(){};//Q=~Q};
 
 function withb() {
 with(b){

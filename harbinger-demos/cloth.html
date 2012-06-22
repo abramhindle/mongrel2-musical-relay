@@ -3,6 +3,9 @@
 	<head> 
 		<title>SWARMED: Cloth [JS1k, 1k demo submission [248]]</title> 
 		<meta charset="utf-8" /> 
+                <meta content='width=device-width; height=device-height; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;' name='viewport' />
+                <meta name="viewport" content="width=device-width" />
+
             	<script src="json2.js"></script>
 	</head> 
 	<body bgcolor="yellow"> 
@@ -168,6 +171,7 @@ setInterval(n, 30);
 z="onmouse";
 v=z+"move";
 d[z+"down"] = function(e) {
+        if (e.preventDefault) e.preventDefault()                
 	w=f;
 	for(h=0;h<f;h++) {
 		for(i=0;i<f;i++) {
@@ -191,6 +195,7 @@ d[z+"down"] = function(e) {
 		q.i=o;
 		}
 }
+d.onclick=function() { d.onmousedown(); d.onmouseup(); }
 d.onkeydown=function(e) {
 	if(e.keyCode==71) {
 		r=(r==0)?.00125:0;

@@ -105,6 +105,7 @@ var svg = d3.select("#chart").append("svg")
     .attr("height", height);
 
 
+
 //d3.json("music.json", function(json) {
 
   force
@@ -130,6 +131,9 @@ var svg = d3.select("#chart").append("svg")
       .call(function () {
         var old = this.on("mousedown");
         this.on("mousedown", function(d) {
+            if(d3.event.preventDefault)
+                d3.event.preventDefault();
+
             selectedNode = this;
             if (typeof old == "function") {
                 return old(d);

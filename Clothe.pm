@@ -68,7 +68,7 @@ sub filterit {
             chomp($bell);
             my ($dur) = ($bell =~ /bell\s+(\d+)\s*$/);
             warn "$bell :: $dur";
-            my $duration = 0.01 + escale(max(0, min($dur, 100))/100.0) * 15;
+            my $duration = 0.01 + escale(max(0, min($dur, 60))/60.0) * 15;
             my $pitch = 20 + $clientID % 10 * 10 + 4000*$duration/15;
             my $loudness = 300+20000 * escale($duration/16.0);
             my $nmsg = cs('"bell"',0.001, $duration, $loudness, $pitch);
