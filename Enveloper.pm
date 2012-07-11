@@ -7,6 +7,8 @@ use strict;
 
 use constant PI => 3.14159;
 
+# this piece of crap needs to be OO-ified
+
 $|=1;
 my $program = "envelope";
 my $instr_cnt=0;
@@ -18,6 +20,7 @@ my $maxvalues = 16;
 my $tableperinstr = 3;
 my @tables = map { [ map { 0 } (1..$maxvalues) ] } ( $tableperinstr * $maxinstr );
 
+my $lastclient = undef;
 
 
 #cloned :/
@@ -44,6 +47,10 @@ sub filterit {
         my ($self,$name,$id,$dest,$msg) = @_;
         my $msg =  decode_json($msg);
         my $client = $msg->{clientID} || 0;
+
+        # gee use OO idiot
+        $lastclient = $client;
+
         my @envs = @{$msg->{data}};
         # hack: client ID chooses the tables they are on
         my $startinstr = $client % $maxinstr;
@@ -77,6 +84,18 @@ sub floateq {
     my ($a,$b) = @_;
     return (abs($a - $b) < 0.0001);
 }
+
+# for the given client (lastclient)
+# return the state
+sub get_state {
+    my ($client) = @_;
+    $client = $lastclient unless defined($client);
+    my $startinstr = $client % $maxinstr;
+    my $starttable = 1 + $startinstr * $tableperinstr;
+    my $table = $starttable;
+    return [ map { $tables[$table - 1 + $_] } (0..($tableperinstr - 1)) ];
+}
+
 1;
 
         
