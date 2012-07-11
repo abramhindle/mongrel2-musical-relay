@@ -7,28 +7,48 @@ ksmps=100
 nchnls=1   
 0dbfs = 1.0
 
+giamp init 1000
 
 instr 1 ; simple waveguide
 	it1 = p4
 	it2 = p5
 arg	oscili	   1,2,it2
-ar      oscili     20000, 1000*arg,it1 
+ar      oscili     giamp, 1000*arg,it1 
 out ar
 endin
 
 
-instr 2 ; simple waveguide w amplitude control
+instr 2 ; simple waveguide w waveguide control
+        it1 = p4 ; wavetable
+        it2 = p5 ; pitch
+        it3 = p6 ; amplitude
+kpch    oscil     1,2,it3
+arg     oscil      1,4*kpch,it2
+ar      oscil     giamp, 1000*arg,it1
+out ar
+endin
+
+instr 3 ; simple waveguide w waveguide control interpolated
         it1 = p4 ; wavetable
         it2 = p5 ; pitch
         it3 = p6 ; amplitude
 kpch    oscili     1,2,it3
-;amp     oscili     2000,2,it3
 arg     oscili      1,4*kpch,it2
-;arg     oscili      1,2,it2
-ar      oscili     2000, 1000*arg,it1
-;outs ar, ar
+ar      oscili     giamp, 1000*arg,it1
 out ar
 endin
+
+instr 4 ; simple waveguide w waveguide control interpolated but lower frequency on everything
+        it1 = p4 ; wavetable
+        it2 = p5 ; pitch
+        it3 = p6 ; amplitude
+kpch    oscili     1,1/4,it3
+arg     oscili     1,4*kpch,it2
+ar      oscili     giamp, 100*arg,it1
+out ar
+endin
+
+
 
 
 instr 6666
@@ -73,11 +93,11 @@ i2 0 3600 1 2 3
 i2 0 3600 4 5 6
 i2 0 3600 7 8 9
 i2 0 3600 10 11 12
-i2 0 3600 13 14 15
-i2 0 3600 16 17 18
-i2 0 3600 19 20 21
-i2 0 3600 22 23 24
-i2 0 3600 25 26 27
-i2 0 3600 28 29 30
+i3 0 3600 13 14 15
+i3 0 3600 16 17 18
+i3 0 3600 19 20 21
+i3 0 3600 22 23 24
+i4 0 3600 25 26 27
+i4 0 3600 28 29 30
 </CsScore>
 </CsoundSynthesizer>

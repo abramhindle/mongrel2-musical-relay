@@ -43,7 +43,9 @@ sub cs {
 sub filterit {
         my ($self,$name,$id,$dest,$msg) = @_;
         my $msg =  decode_json($msg);
-        my $client = $msg->{clientID} || 0;
+        my $client = $msg->{client} || 0;
+        warn keys %$msg;
+        warn $client;
         my @envs = @{$msg->{data}};
         # hack: client ID chooses the tables they are on
         my $startinstr = $client % $maxinstr;
