@@ -10,14 +10,30 @@
 	<body bgcolor="black" height="100%" width="100%"> 
 		<canvas id="c" width="100%" height="100%"></canvas> 
 		<script> 
+function randInt(i) {
+    return Math.floor( Math.random() * i );
+}
+
+var clientID = randInt( 2000000000 );
+
+
 host=window.location.hostname;
 function harb(msg) {
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST","http://"+host+"/harbinger", true); // don't need a response
-	xhr.send( JSON.stringify({ "program":"bouncey", "id":666, "dest":"", "msg":msg }) );
+	xhr.send( JSON.stringify({ "program":"envelope", "id":666, "dest":"", "msg":msg }) );
 }
 
 /* XXX unclean! */
+
+/*
+  * TODOS 
+    - [ ] Range
+    - [ ] Center -- e.g. -1 to 1
+    - [ ] Harbinger JSON export
+    - [ ] Interactive updates?
+    
+*/
 
 function install(original, newone) {
     if (original) {
@@ -31,18 +47,26 @@ function install(original, newone) {
 }
 
 function run() {
+    
+    var update;
+
+    var updateable = 1;
+    function signalUpdate() {
+        updateable = 1;
+    }
+
     var canvas = document.body.children[0];
     var W = canvas.width  = window.innerWidth;
     var H = canvas.height = window.innerHeight-6;
     var context = canvas.getContext("2d");
 
-    function Envelope(N=64,eW=W,eH=H,epos=[0,0],col="#FF0") {
+    function Envelope(N=64,eW=W,eH=H,epos=[0,0],col="#FF0",range=[0,1]) {
 	var arr = new Array(N);
 	var iw = eW/N;
 	var self;
         var offX = epos[0];
-        var offY = epos[1];
-	    self = {
+        var offY = epos[1];        
+	self = {
 	        name: "envelope",
 	        arr: arr,
 	        width: eW,
@@ -50,15 +74,34 @@ function run() {
                 offX: offX,
                 offY: offY,
 	        clicked: 0,
+                serialize: function() {
+                    return {
+                        values: self.arr,
+                        range:  range,
+                        name: name
+                    }
+                },
 	        draw: function(context) {
 	            with(context){
+	                fillStyle = col;
+	                lineWidth = 3;
+	                strokeStyle = col;
+                        var r = range[1] - range[0];
+                        var zeroy = eH;
+                        if (range[0] <= 0 && range[1] >= 0) {
+                            zeroy = eH - (0 - range[0])/r * eH;
+                            beginPath();
+                            moveTo(offX + 0,offY + zeroy);
+                            lineTo(offX+eW,offY+zeroy);
+                            stroke();
+                        }
+
                         moveTo(offX,offY);
 	                for (var i = 0; i < N; i++) {
-	                    fillStyle = col;
-	                    lineWidth = 3;
-	                    strokeStyle = col;
-
-	                    fillRect(i*iw,offY + eH - self.arr[i],iw,self.arr[i]);
+                            var s = self.arr[i] - range[0];
+                            var height = s/r * eH;
+                            var myy = offY + eH - height;                            
+	                    fillRect(offX + i*iw,myy ,iw, (zeroy + offY) - myy);
 	                }
 	            }
 	        },
@@ -73,7 +116,8 @@ function run() {
                 },
 	        clickin: function(x,y) {
 	            var i = Math.floor((x-offX)/iw);            
-	            self.arr[i] = (eH - (y - offY));
+	            self.arr[i] = (range[1]-range[0])*((eH - (y - offY)) / eH) + range[0];
+                    signalUpdate();
 	        },
 	        onmousedown: function(e) {
                     if (self.wasClicked(e)) {
@@ -112,34 +156,54 @@ function run() {
 	            onmousedown  = install(onmousedown, envelope.onmousedown);
 	            onmouseup    = install(onmouseup,   envelope.onmouseup);
 	            onmousemove  = install(onmousemove, envelope.onmousemove);            
+	            onmouseclick  = install(onmouseclick, envelope.onmouseclick);            
+
 	        }
 	        
 	
 	    };
 	    return self;
-	}
+    };
 	
     var cols = ['#FF0000','#00FF00','#0000FF'];
+    var ranges = [
+        [-1,1],
+        [0,1],
+        [0,1]
+    ];
     var envs = new Array(3);
-    for (var i = 0 ; i < 3; i++) {
-        envs[i] = Envelope(16,W,H/3,[0,Math.floor(i*H/3)],cols[i]);
+    for (var i = 0 ; i < 3; i++) {        
+        envs[i] = Envelope(16,W,H/3,[0,Math.floor(i*H/3)],cols[i], ranges[i]);
         envs[i].mouseinstall();
     }
 	
     function drawit() {
-	with(context) {
-	    moveTo(0,0);
-	    fillStyle = "#000";
-	    fillRect(0,0,W,H);
-	    
-            for (var i = 0 ; i < envs.length; i++) {
-	        envs[i].draw(context);
-            }
-	    
-	}
+        if (updateable) {
+	    with(context) {
+	        moveTo(0,0);
+	        fillStyle = "#000";
+	        fillRect(0,0,W,H);
+	        
+                for (var i = 0 ; i < envs.length; i++) {
+	            envs[i].draw(context);
+                }
+	    }
+            updateable = update();
+        }
     }
+
+
+    update = function() {
+        var arrs = new Array(envs.length);
+        for (var i = 0 ; i < envs.length; i++) {
+            arrs[i] = envs[i].serialize();
+        }
+        var msg = { client: clientID, data: arrs };
+        harb( JSON.stringify( msg ) );
+        return 0;
+    };
     
-    setInterval(drawit, 50);
+    setInterval(drawit, 30);
 }	
 
 setTimeout('run()',100)
