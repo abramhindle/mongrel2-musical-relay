@@ -1,0 +1,148 @@
+<!doctype html> 
+<html> 
+	<head> 
+		<title>SWARMED: Envelope</title>
+		<meta charset="utf-8" /> 
+                <meta content='width=device-width; height=device-height; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;' name='viewport' />
+                <meta name="viewport" content="width=device-width" />
+            	<script src="json2.js"></script>
+	</head> 
+	<body bgcolor="black" height="100%" width="100%"> 
+		<canvas id="c" width="100%" height="100%"></canvas> 
+		<script> 
+host=window.location.hostname;
+function harb(msg) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST","http://"+host+"/harbinger", true); // don't need a response
+	xhr.send( JSON.stringify({ "program":"bouncey", "id":666, "dest":"", "msg":msg }) );
+}
+
+/* XXX unclean! */
+
+function install(original, newone) {
+    if (original) {
+        return function(e) {
+            original(e);
+            newone(e);
+        }
+    } else {
+        return newone;
+    }
+}
+
+function run() {
+    var canvas = document.body.children[0];
+    var W = canvas.width  = window.innerWidth;
+    var H = canvas.height = window.innerHeight-6;
+    var context = canvas.getContext("2d");
+
+    function Envelope(N=64,eW=W,eH=H,epos=[0,0],col="#FF0") {
+	var arr = new Array(N);
+	var iw = eW/N;
+	var self;
+        var offX = epos[0];
+        var offY = epos[1];
+	    self = {
+	        name: "envelope",
+	        arr: arr,
+	        width: eW,
+	        height: eH,
+                offX: offX,
+                offY: offY,
+	        clicked: 0,
+	        draw: function(context) {
+	            with(context){
+                        moveTo(offX,offY);
+	                for (var i = 0; i < N; i++) {
+	                    fillStyle = col;
+	                    lineWidth = 3;
+	                    strokeStyle = col;
+
+	                    fillRect(i*iw,offY + eH - self.arr[i],iw,self.arr[i]);
+	                }
+	            }
+	        },
+                wasClicked: function(e) {
+                    var x = e.pageX;
+                    var y = e.pageY;
+                    if (x >= offX && x <= offX + eW && y >= offY && y <= offY + eH) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                },
+	        clickin: function(x,y) {
+	            var i = Math.floor((x-offX)/iw);            
+	            self.arr[i] = (eH - (y - offY));
+	        },
+	        onmousedown: function(e) {
+                    if (self.wasClicked(e)) {
+	                var x = e.pageX;
+	                var y = e.pageY;
+	                self.clicked = 1;
+	                self.clickin(x,y);
+                    }
+	        },
+	        onmouseup: function(e) {
+                    if (self.wasClicked(e)) {
+	                self.clicked = 0;
+                    }
+	        },
+	        onmouseclick: function(e) {
+                    if (self.wasClicked(e)) {
+	                self.clicked = 0;
+	                var x = e.pageX;
+	                var y = e.pageY;
+	                self.clickin(x,y);
+                    }
+	        },
+	
+	        onmousemove: function(e) {
+                    if (self.wasClicked(e)) {
+	                var x = e.pageX;
+	                var y = e.pageY;
+	                if (self.clicked != 0) {
+	                    self.clickin(x,y);
+	                }
+                    }
+	        },
+	
+	        mouseinstall: function() {
+	            var envelope = self;
+	            onmousedown  = install(onmousedown, envelope.onmousedown);
+	            onmouseup    = install(onmouseup,   envelope.onmouseup);
+	            onmousemove  = install(onmousemove, envelope.onmousemove);            
+	        }
+	        
+	
+	    };
+	    return self;
+	}
+	
+    var cols = ['#FF0000','#00FF00','#0000FF'];
+    var envs = new Array(3);
+    for (var i = 0 ; i < 3; i++) {
+        envs[i] = Envelope(16,W,H/3,[0,Math.floor(i*H/3)],cols[i]);
+        envs[i].mouseinstall();
+    }
+	
+    function drawit() {
+	with(context) {
+	    moveTo(0,0);
+	    fillStyle = "#000";
+	    fillRect(0,0,W,H);
+	    
+            for (var i = 0 ; i < envs.length; i++) {
+	        envs[i].draw(context);
+            }
+	    
+	}
+    }
+    
+    setInterval(drawit, 50);
+}	
+
+setTimeout('run()',100)
+                </script>
+        </body>
+</html>
