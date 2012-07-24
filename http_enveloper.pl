@@ -20,7 +20,7 @@ my $mongrel = Mongrel2::mongrel_init( $sender_id, $sub_addr, $pub_addr );
 # ) or die "Could not create socket: $!\n";
 # 
 my $H = Harbinger->new();
-my $jackit = 0;
+my $jackit = 1;
 use Enveloper;
 Enveloper::register($H, $jackit);
 
@@ -62,7 +62,8 @@ while(1) {
                 # now get state and return it
                 # step 1. naively keep returning the state back to the user
                 my $state = Enveloper::get_state();
-                $mongrel->reply_http( $req, encode_json($state));
+                my $str = encode_json($state);
+                $mongrel->reply_http( $req, $str);
             }
         } else {
             $mongrel->reply_http( $req, "NO BODY $cnt");

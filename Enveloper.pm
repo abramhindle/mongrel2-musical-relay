@@ -15,10 +15,14 @@ my $instr_cnt=0;
 my $orc = "csound/envelope.csd";
 my $sco = "";
 my $maxinstr = 10;
-#my %clients = ();
+my %clients = ();
 my $maxvalues = 16;
 my $tableperinstr = 3;
-my @tables = map { [ map { 0 } (1..$maxvalues) ] } ( $tableperinstr * $maxinstr );
+my @tables = map { 
+    my @a = map { 0.0 * $_ } (1 .. $maxvalues);
+    \@a
+} ( 1 .. ($tableperinstr * $maxinstr) );
+
 
 my $lastclient = undef;
 
@@ -47,10 +51,9 @@ sub filterit {
         my ($self,$name,$id,$dest,$msg) = @_;
         my $msg =  decode_json($msg);
         my $client = $msg->{client} || 0;
-        warn keys %$msg;
-        warn $client;
         # gee use OO idiot
         $lastclient = $client;
+        warn $client;
         my @envs = @{$msg->{data}};
         # hack: client ID chooses the tables they are on
         my $startinstr = $client % $maxinstr;
@@ -60,10 +63,12 @@ sub filterit {
         foreach my $env (@envs) {
             my $i = 0;
             foreach my $elm (@{$env->{values}}) {
-                if ($i < 16) {
-                    unless (floateq($elm, $tables[$table - 1]->[$i])) {
+                if ($i < $maxvalues) {
+                    my $last = $clients{$client}->{$table}->[$i];
+                    if ($elm ne "null" && defined($elm) && !floateq($elm, $last)) {
+                        $tables[$table - 1]->[$i] = $elm;
+                        $clients{$client}->{$table}->[$i] = $elm;
                         push @msgs, cs("6666","0","0.001",$table, $i, $elm);
-                        warn $msgs[$#msgs];
                     }
                 }
                 $i++;
@@ -88,8 +93,9 @@ sub floateq {
 # for the given client (lastclient)
 # return the state
 sub get_state {
-    my ($client) = @_;
-    $client = $lastclient unless defined($client);
+    #my ($client) = @_;
+    my $client = $lastclient;
+    #$client = $lastclient unless defined($client);
     my $startinstr = $client % $maxinstr;
     my $starttable = 1 + $startinstr * $tableperinstr;
     my $table = $starttable;

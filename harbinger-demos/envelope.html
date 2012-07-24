@@ -14,7 +14,7 @@ function randInt(i) {
     return Math.floor( Math.random() * i );
 }
 
-var clientID = randInt( 2000000000 );
+var clientID = (location.hash && location.hash.substring(1))?location.hash.substring(1):randInt( 2000000000 );
 
 
 host=window.location.hostname;
@@ -55,113 +55,131 @@ function run() {
     var H = canvas.height = window.innerHeight-6;
     var context = canvas.getContext("2d");
 
-    function Envelope(N=64,eW=W,eH=H,epos=[0,0],col="#FF0",range=[0,1]) {
-	var arr = new Array(N);
+    function Envelope( options ) {
+	var default_args = {
+	    'N'	   :	64,
+	    'W'   :	W,
+	    'H'   :	H,
+            'pos' :     [0,0],
+	    'col'  :	"#FF0",
+            'range':    [0,1]
+	}
+	for(var index in default_args) {
+	    if(typeof options[index] == "undefined") options[index] = default_args[index];
+	}
+        var N = options.N;
+        var eW = options.W;
+        var eH = options.H;
+        var col = options.col;
+        var range = options.range;
+        var epos = options.pos;
+        var arr = new Array(N);
 	var iw = eW/N;
 	var self;
         var offX = epos[0];
         var offY = epos[1];        
 	self = {
-	        name: "envelope",
-	        arr: arr,
-	        width: eW,
-	        height: eH,
-                offX: offX,
-                offY: offY,
-	        clicked: 0,
-                serialize: function() {
-                    return {
-                        values: self.arr,
-                        range:  range,
-                        name: name
-                    }
-                },
-	        draw: function(context) {
-	            with(context){
-	                fillStyle = col;
-	                lineWidth = 3;
-	                strokeStyle = col;
-                        var r = range[1] - range[0];
-                        var zeroy = eH;
-                        if (range[0] <= 0 && range[1] >= 0) {
-                            zeroy = eH - (0 - range[0])/r * eH;
-                            beginPath();
-                            moveTo(offX + 0,offY + zeroy);
-                            lineTo(offX+eW,offY+zeroy);
-                            stroke();
-                        }
-
-                        moveTo(offX,offY);
-	                for (var i = 0; i < N; i++) {
-                            var s = self.arr[i] - range[0];
-                            var height = s/r * eH;
-                            var myy = offY + eH - height;                            
-	                    fillRect(offX + i*iw,myy ,iw, (zeroy + offY) - myy);
-	                }
-	            }
-	        },
-                wasClicked: function(e) {
-                    var x = e.pageX;
-                    var y = e.pageY;
-                    if (x >= offX && x <= offX + eW && y >= offY && y <= offY + eH) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                },
-	        clickin: function(x,y) {
-	            var i = Math.floor((x-offX)/iw);            
-	            self.arr[i] = (range[1]-range[0])*((eH - (y - offY)) / eH) + range[0];
-                    signalUpdate();
-	        },
-	        onmousedown: function(e) {
-                    if (self.wasClicked(e)) {
-	                var x = e.pageX;
-	                var y = e.pageY;
-	                self.clicked = 1;
-	                self.clickin(x,y);
-                    }
-	        },
-	        onmouseup: function(e) {
-                    if (self.wasClicked(e)) {
-	                self.clicked = 0;
-                    }
-	        },
-	        onmouseclick: function(e) {
-                    if (self.wasClicked(e)) {
-	                self.clicked = 0;
-	                var x = e.pageX;
-	                var y = e.pageY;
-	                self.clickin(x,y);
-                    }
-	        },
-	
-	        onmousemove: function(e) {
-                    if (self.wasClicked(e)) {
-	                var x = e.pageX;
-	                var y = e.pageY;
-	                if (self.clicked != 0) {
-	                    self.clickin(x,y);
-	                }
-                    }
-	        },
-	
-	        mouseinstall: function() {
-	            var envelope = self;
-	            onmousedown  = install(onmousedown, envelope.onmousedown);
-	            onmouseup    = install(onmouseup,   envelope.onmouseup);
-	            onmousemove  = install(onmousemove, envelope.onmousemove);            
-	            onmouseclick  = install(onmouseclick, envelope.onmouseclick);            
-
-	        },
-                copyValues: function(tarr) {
-                    for (var i = 0 ; i < tarr.length; i++) {
-                        self.arr[i] = tarr[i];
-                    }
-                    signalUpdate();
+	    name: "envelope",
+	    arr: arr,
+	    width: eW,
+	    height: eH,
+            offX: offX,
+            offY: offY,
+	    clicked: 0,
+            serialize: function() {
+                return {
+                    values: self.arr,
+                    range:  range,
+                    name: name
                 }
-	    };
-	    return self;
+            },
+	    draw: function(context) {
+	        with(context){
+	            fillStyle = col;
+	            lineWidth = 3;
+	            strokeStyle = col;
+                    var r = range[1] - range[0];
+                    var zeroy = eH;
+                    if (range[0] <= 0 && range[1] >= 0) {
+                        zeroy = eH - (0 - range[0])/r * eH;
+                        beginPath();
+                        moveTo(offX + 0,offY + zeroy);
+                        lineTo(offX+eW,offY+zeroy);
+                        stroke();
+                    }
+                    
+                    moveTo(offX,offY);
+	            for (var i = 0; i < N; i++) {
+                        var s = self.arr[i] - range[0];
+                        var height = s/r * eH;
+                        var myy = offY + eH - height;                            
+	                fillRect(offX + i*iw,myy ,iw, (zeroy + offY) - myy);
+	            }
+	        }
+	    },
+            wasClicked: function(e) {
+                var x = e.pageX;
+                var y = e.pageY;
+                if (x >= offX && x <= offX + eW && y >= offY && y <= offY + eH) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            },
+	    clickin: function(x,y) {
+	        var i = Math.floor((x-offX)/iw);            
+	        self.arr[i] = (range[1]-range[0])*((eH - (y - offY)) / eH) + range[0];
+                signalUpdate();
+	    },
+	    onmousedown: function(e) {
+                if (self.wasClicked(e)) {
+	            var x = e.pageX;
+	            var y = e.pageY;
+	            self.clicked = 1;
+	            self.clickin(x,y);
+                }
+	    },
+	    onmouseup: function(e) {
+                if (self.wasClicked(e)) {
+	            self.clicked = 0;
+                }
+	    },
+	    onclick: function(e) {
+                if (self.wasClicked(e)) {
+	            self.clicked = 0;
+	            var x = e.pageX;
+	            var y = e.pageY;
+	            self.clickin(x,y);
+                }
+	    },
+	    
+	    onmousemove: function(e) {
+                if (self.wasClicked(e)) {
+	            var x = e.pageX;
+	            var y = e.pageY;
+	            if (self.clicked != 0) {
+	                self.clickin(x,y);
+	            }
+                }
+	    },
+	    
+	    mouseinstall: function() {
+	        var envelope = self;
+	        onmousedown  = install(onmousedown, envelope.onmousedown);
+	        onmouseup    = install(onmouseup,   envelope.onmouseup);
+	        onmousemove  = install(onmousemove, envelope.onmousemove);            
+	        onclick  = install(onclick, envelope.onclick);            
+                
+	    },
+            copyValues: function(tarr) {
+                for (var i = 0 ; i < tarr.length; i++) {
+                    self.arr[i] = tarr[i];
+                }
+                signalUpdate();
+            }
+	};
+	return self;
+        
     };
 	
     var cols = ['#FF0000','#00FF00','#0000FF'];
@@ -172,7 +190,14 @@ function run() {
     ];
     var envs = new Array(3);
     for (var i = 0 ; i < 3; i++) {        
-        envs[i] = Envelope(16,W,H/3,[0,Math.floor(i*H/3)],cols[i], ranges[i]);
+        envs[i] = Envelope({
+            'N':16,
+            'W':W,
+            'H':H/3,
+            'pos':[0,Math.floor(i*H/3)],
+            'col':cols[i], 
+            'range':ranges[i]
+        });
         envs[i].mouseinstall();
     }
 	
@@ -198,10 +223,10 @@ function run() {
                 try {
                     if (xhr.status==200) {
                         var text = xhr.responseText;
-                        var envarrs = JSON.parse(text);
+                        var arrs = JSON.parse(text);
                         var cnt = 0;
-                        for (var i = 0 ; i < envvarrs.length; i++) {
-                            var tarr = envvarrs[i] 
+                        for (var i = 0 ; i < arrs.length; i++) {
+                            var tarr = arrs[i];
                             envs[cnt].copyValues( tarr );
                             cnt++;
                         }
@@ -229,7 +254,7 @@ function run() {
         return 0;
     };
     
-    setInterval(drawit, 30);
+    setInterval(drawit, 100);
 }	
 
 setTimeout('run()',100)
