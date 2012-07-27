@@ -11,10 +11,10 @@ use constant PI => 3.14159;
 
 $|=1;
 my $program = "envelope";
-my $instr_cnt=0;
+my $instr_cnt = 0;
 my $orc = "csound/envelope.csd";
 my $sco = "";
-my $maxinstr = 10;
+my $maxinstr = 6;
 my %clients = ();
 my $maxvalues = 16;
 my $tableperinstr = 3;

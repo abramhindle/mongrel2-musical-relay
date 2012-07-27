@@ -22,6 +22,13 @@ my $notandroid2 = sub {
     }
     return 1;
 };
+my $justandroid2 = sub {
+    my $ua = shift;
+    if ($ua =~ /android [12]/i) {
+        return 1;
+    }
+    return 0;
+};
 
 # no android clients
 my $notandroid = sub {
@@ -51,7 +58,12 @@ my %apps = (
             env => {
                       name => "Envelope",
                       url => "$route_addr/demos/envelope.html",
-                      allowed => $dfl,
+                      allowed => $notandroid2,
+                     },
+            env_android => {
+                      name => "Envelope",
+                      url => "$route_addr/demos/envelope-android.html",
+                      allowed => $justandroid2,
                      }
 );
 

@@ -8,8 +8,14 @@
             	<script src="json2.js"></script>
 	</head> 
 	<body bgcolor="black" height="100%" width="100%"> 
-		<canvas id="c" width="100%" height="100%"></canvas> 
+		<canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;"></canvas> 
 		<script> 
+//document.addEventListener("touchstart",function(e){e.preventDefault();});
+document.addEventListener("touchend",function(e){e.preventDefault();});
+//document.addEventListener("touchmove",function(e){e.preventDefault();});
+
+
+
 function randInt(i) {
     return Math.floor( Math.random() * i );
 }
@@ -51,6 +57,10 @@ function run() {
     }
 
     var canvas = document.body.children[0];
+    canvas.addEventListener("touchstart",function(e){e.preventDefault();});
+    canvas.addEventListener("touchend",function(e){e.preventDefault();});
+    canvas.addEventListener("touchmove",function(e){e.preventDefault();});
+
     var W = canvas.width  = window.innerWidth;
     var H = canvas.height = window.innerHeight-6;
     var context = canvas.getContext("2d");
@@ -138,11 +148,25 @@ function run() {
 	            self.clicked = 1;
 	            self.clickin(x,y);
                 }
+                e.preventDefault();
 	    },
 	    onmouseup: function(e) {
                 if (self.wasClicked(e)) {
 	            self.clicked = 0;
                 }
+                e.preventDefault();
+	    },
+	    ontouchstart: function(e) {
+	        var x = e.pageX;
+	        var y = e.pageY;
+	        self.clickin(x,y);
+                e.preventDefault();
+	    },
+	    ontouchend: function(e) {
+	        //var x = e.pageX;
+	        //var y = e.pageY;
+	        //self.clickin(x,y);
+                //e.preventDefault();
 	    },
 	    onclick: function(e) {
                 if (self.wasClicked(e)) {
@@ -151,6 +175,7 @@ function run() {
 	            var y = e.pageY;
 	            self.clickin(x,y);
                 }
+                e.preventDefault();
 	    },
 	    
 	    onmousemove: function(e) {
@@ -161,14 +186,24 @@ function run() {
 	                self.clickin(x,y);
 	            }
                 }
+                e.preventDefault();
+	    },
+	    ontouchmove: function(e) {
+	        //var x = e.pageX;
+	        //var y = e.pageY;
+	        //self.clickin(x,y);
+                //e.preventDefault();
 	    },
 	    
 	    mouseinstall: function() {
 	        var envelope = self;
-	        onmousedown  = install(onmousedown, envelope.onmousedown);
-	        onmouseup    = install(onmouseup,   envelope.onmouseup);
-	        onmousemove  = install(onmousemove, envelope.onmousemove);            
-	        onclick  = install(onclick, envelope.onclick);            
+	        canvas.onmousedown  =  install(canvas.onmousedown, envelope.onmousedown);
+	        canvas.onmouseup    =  install(canvas.onmouseup,   envelope.onmouseup);
+	        canvas.onmousemove  =  install(canvas.onmousemove, envelope.onmousemove);       
+	        //canvas.ontouchstart  = install(canvas.ontouchstart, envelope.ontouchstart);
+	        //canvas.ontouchend    = install(canvas.ontouchend,   envelope.ontouchend);
+	        //canvas.ontouchmove   = install(canvas.ontouchmove, envelope.ontouchemove);     
+	        //canvas.onclick       = install(canvas.onclick, envelope.onclick);            
                 
 	    },
             copyValues: function(tarr) {
