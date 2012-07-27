@@ -7,23 +7,53 @@
                 <meta name="viewport" content="width=device-width" />
             	<script src="json2.js"></script>
 	</head> 
-	<body bgcolor="black" height="100%" width="100%"> 
-		<canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;"></canvas> 
+	<body bgcolor="black" height="100%" width="100%" text="yellow"> 
+    
+    <center>
+    <canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;"></canvas> 
+    </center>
+    <div id="debug"></div>
 		<script> 
-//document.addEventListener("touchstart",function(e){e.preventDefault();});
-document.addEventListener("touchend",function(e){e.preventDefault();});
-//document.addEventListener("touchmove",function(e){e.preventDefault();});
+var canvas = document.getElementById("c");
+var W = canvas.width  = window.innerWidth-6;
+var H = canvas.height = window.innerHeight-50;
+var context = canvas.getContext("2d");
+function debug(s) {
+    document.getElementById("debug").innerHTML += " "+s;
+}
+function preventDefault(e) {
+	e.preventDefault();
+}
+document.addEventListener("touchstart", preventDefault, false);
+document.addEventListener("touchmove", preventDefault, false);
+document.addEventListener("touchend", preventDefault, false);
+document.addEventListener("click", preventDefault, false);
+canvas.addEventListener("click", preventDefault, false);
+
+function getPosition(e) {
+	if ( e.targetTouches && e.targetTouches.length > 0) {
+		var touch = e.targetTouches[0];
+		var x = touch.pageX  - canvas.offsetLeft;
+		var y = touch.pageY  - canvas.offsetTop;
+		return [x,y];
+	} else {
+		var rect = e.target.getBoundingClientRect();
+		var x = e.offsetX || e.pageX - rect.left - window.scrollX;
+		var y = e.offsetY || e.pageY - rect.top  - window.scrollY;
+		var x = e.pageX  - canvas.offsetLeft;
+		var y = e.pageY  - canvas.offsetTop;
+		return [x,y];
+	}
+}
 
 
 
 function randInt(i) {
     return Math.floor( Math.random() * i );
 }
-
 var clientID = (location.hash && location.hash.substring(1))?location.hash.substring(1):randInt( 2000000000 );
-
-
-host=window.location.hostname;
+var host = window.location.hostname;
+var buttonDown = false;
 
 /* XXX unclean! */
 
@@ -56,14 +86,7 @@ function run() {
         updateable = 1;
     }
 
-    var canvas = document.body.children[0];
-    canvas.addEventListener("touchstart",function(e){e.preventDefault();});
-    canvas.addEventListener("touchend",function(e){e.preventDefault();});
-    canvas.addEventListener("touchmove",function(e){e.preventDefault();});
 
-    var W = canvas.width  = window.innerWidth;
-    var H = canvas.height = window.innerHeight-6;
-    var context = canvas.getContext("2d");
 
     function Envelope( options ) {
 	var default_args = {
@@ -128,8 +151,9 @@ function run() {
 	        }
 	    },
             wasClicked: function(e) {
-                var x = e.pageX;
-                var y = e.pageY;
+                var pos = getPosition(e);
+                var x = pos[0];
+                var y = pos[1];
                 if (x >= offX && x <= offX + eW && y >= offY && y <= offY + eH) {
                     return 1;
                 } else {
@@ -141,69 +165,56 @@ function run() {
 	        self.arr[i] = (range[1]-range[0])*((eH - (y - offY)) / eH) + range[0];
                 signalUpdate();
 	    },
-	    onmousedown: function(e) {
+	    mousedown: function(e) {
+                e.preventDefault();
                 if (self.wasClicked(e)) {
-	            var x = e.pageX;
-	            var y = e.pageY;
+                    var pos = getPosition(e);
+                    var x = pos[0];
+                    var y = pos[1];
+
 	            self.clicked = 1;
 	            self.clickin(x,y);
                 }
-                e.preventDefault();
 	    },
-	    onmouseup: function(e) {
+	    mouseup: function(e) {
+                e.preventDefault();
                 if (self.wasClicked(e)) {
 	            self.clicked = 0;
                 }
+	    },
+	    touchstart: function(e) {
+                return self.mousedown(e);
+	    },
+	    touchend: function(e) {
+                return self.mouseup(e);
+	    },
+	    mousemove: function(e) {
                 e.preventDefault();
-	    },
-	    ontouchstart: function(e) {
-	        var x = e.pageX;
-	        var y = e.pageY;
-	        self.clickin(x,y);
-                e.preventDefault();
-	    },
-	    ontouchend: function(e) {
-	        //var x = e.pageX;
-	        //var y = e.pageY;
-	        //self.clickin(x,y);
-                //e.preventDefault();
-	    },
-	    onclick: function(e) {
                 if (self.wasClicked(e)) {
-	            self.clicked = 0;
-	            var x = e.pageX;
-	            var y = e.pageY;
-	            self.clickin(x,y);
-                }
-                e.preventDefault();
-	    },
-	    
-	    onmousemove: function(e) {
-                if (self.wasClicked(e)) {
-	            var x = e.pageX;
-	            var y = e.pageY;
+                    var pos = getPosition(e);
+                    var x = pos[0];
+                    var y = pos[1];
 	            if (self.clicked != 0) {
 	                self.clickin(x,y);
 	            }
                 }
-                e.preventDefault();
+
 	    },
-	    ontouchmove: function(e) {
-	        //var x = e.pageX;
-	        //var y = e.pageY;
-	        //self.clickin(x,y);
-                //e.preventDefault();
+	    touchmove: function(e) {
+                return self.mousemove(e);
 	    },
 	    
 	    mouseinstall: function() {
 	        var envelope = self;
-	        canvas.onmousedown  =  install(canvas.onmousedown, envelope.onmousedown);
-	        canvas.onmouseup    =  install(canvas.onmouseup,   envelope.onmouseup);
-	        canvas.onmousemove  =  install(canvas.onmousemove, envelope.onmousemove);       
-	        //canvas.ontouchstart  = install(canvas.ontouchstart, envelope.ontouchstart);
-	        //canvas.ontouchend    = install(canvas.ontouchend,   envelope.ontouchend);
-	        //canvas.ontouchmove   = install(canvas.ontouchmove, envelope.ontouchemove);     
-	        //canvas.onclick       = install(canvas.onclick, envelope.onclick);            
+
+                
+                canvas.addEventListener("mousedown",  envelope.mousedown, false);
+                canvas.addEventListener("mousemove",  envelope.mousemove, false);
+                canvas.addEventListener("mouseup",    envelope.mouseup, false);
+                canvas.addEventListener("mouseout",   envelope.mouseout, false);
+                canvas.addEventListener("touchstart", envelope.touchstart, false);
+                canvas.addEventListener("touchmove",  envelope.touchmove, false);
+                canvas.addEventListener("touchend",   envelope.touchend, false);
                 
 	    },
             copyValues: function(tarr) {
@@ -253,6 +264,7 @@ function run() {
 
     function harb(msg) {
 	var xhr = new XMLHttpRequest();
+
         xhr.onreadystatechange = function () {
             if (xhr.readyState==4) {
                 try {
@@ -272,9 +284,10 @@ function run() {
                 }
             }
         };
-        
-	xhr.open("POST","http://"+host+"/enveloper", true); // don't need a response
+	xhr.open("POST","http://"+host+"/enveloper");
+        xhr.setRequestHeader('Accept', 'application/json');
 	xhr.send( JSON.stringify({ "program":"envelope", "id":666, "dest":"", "msg":msg }) );
+
     }
 
 
@@ -291,8 +304,10 @@ function run() {
     
     setInterval(drawit, 100);
 }	
+run();
 
-setTimeout('run()',100)
                 </script>
+
+
         </body>
 </html>

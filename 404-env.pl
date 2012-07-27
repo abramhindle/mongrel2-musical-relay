@@ -55,16 +55,21 @@ my $notphone = sub {
 
 
 my %apps = (
+#            env => {
+#                      name => "Envelope",
+#                      url => "/demos/envelope.html",
+#                      allowed => $notandroid2,
+#                     },
             env => {
                       name => "Envelope",
-                      url => "$route_addr/demos/envelope.html",
-                      allowed => $notandroid2,
+                      url => "/demos/envelope.html",
+                      allowed => $dfl,
                      },
-            env_android => {
-                      name => "Envelope",
-                      url => "$route_addr/demos/envelope-android.html",
-                      allowed => $justandroid2,
-                     }
+#            env_android => {
+#                      name => "Envelope",
+#                      url => "/demos/envelope-android.html",
+#                      allowed => $justandroid2,
+#                     }
 );
 
 
@@ -94,16 +99,27 @@ while(1) {
             }
         }
 
-        my $response = redirect( $apps{$choice} );
+        my $response = redirect( $apps{$choice}, $host );
 
         $mongrel->reply_http( $req, $response );
     }
 }
 
 sub redirect {
-    my ($choice) = @_;
+    my ($choice, $host) = @_;
     my %choice = %$choice;
     my $html = $responsehtml;
+    if (!$host) {
+        $host = $route_addr;
+    } else {
+        if ($host =~ /http:\/\//) {
+
+	} else {
+            $host = "http://$host";
+        }
+    }
+    $host ||= $route_addr;
+    my $url = $host . $choice{url};
     $html =~ s/%TITLE%/$choice{name}/g;
     $html =~ s/%URL%/$choice{url}/g;
     return $html;
