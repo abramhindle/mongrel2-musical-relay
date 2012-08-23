@@ -102,19 +102,25 @@ my %apps = (
 
 my @allchoices = keys %apps;
 
+my $starttime = undef;
+
 sub choose {
     my $ua = shift;
     my $choice = undef;
     my @choices = @allchoices;
     if (defined($starttime)) {
-        my $minutes = time() - $starttime / 60;
+        my $minutes = (time() - $starttime) / 60;
+        warn $minutes;
         for my $time (@timeline) {
             my ($t,@a) = @$time;
             if ($t <= $minutes) {
                 @choices = @a;
+            } else {
+                last;
             }
         }
     }
+    warn "Limited to ".join(", ", @choices);
     while (!defined($choice)) {
         my $possible = $choices[rand(@choices)];
         my $app = $apps{$possible};
@@ -143,6 +149,12 @@ while(1) {
         my $ua = $req->{'headers'}->{'user-agent'};
 	warn $ua;
         my $host = $req->{'headers'}->{'host'};
+        my $path = $req->{'path'};
+        if ($path =~ /startperformance/) {
+            if (!defined($starttime) || time() - $starttime > 60*5) {
+                $starttime = time();
+            }
+        }
         my $choice = choose( $ua );
         my $response = redirect( $apps{$choice}, $host );
 
