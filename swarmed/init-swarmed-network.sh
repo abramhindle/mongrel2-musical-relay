@@ -2,6 +2,7 @@
 echo 'echo "1" > /proc/sys/net/ipv4/ip_forward' | sudo sh
 IP=10.20.30.1
 sudo kill `ps aux | fgrep dhclient | fgrep eth0 | awk '{print $2}'`
+sudo /etc/init.d/network-manager stop
 sudo ifconfig eth0 up 10.20.30.1 netmask 255.255.255.0
 sudo ufw disable
 sudo iptables -F
