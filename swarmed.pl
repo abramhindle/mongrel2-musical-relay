@@ -151,7 +151,7 @@ while(1) {
         my $host = $req->{'headers'}->{'host'};
         my $path = $req->{'path'};
         if ($path =~ /startperformance/) {
-            if (!defined($starttime) || time() - $starttime > 60*5) {
+            if (!defined($starttime) || (time() - $starttime) > 5*60) {
                 $starttime = time();
             }
         }

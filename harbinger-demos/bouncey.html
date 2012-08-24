@@ -9,14 +9,26 @@
             	<script src="json2.js"></script>
 	</head> 
 	<body bgcolor="black" height="100%" width="100%"> 
-		<canvas id="c" width="100%" height="100%"></canvas> 
+		<canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;"></canvas> 
 		<script> 
-host=window.location.hostname;
+function randInt(i) {
+    return Math.floor( Math.random() * i );
+}
+var clientID = (location.hash && location.hash.substring(1))?location.hash.substring(1):randInt( 2000000000 );
+var host = window.location.hostname;
+var buttonDown = false;
+
 function harb(msg) {
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST","http://"+host+"/harbinger", true); // don't need a response
 	xhr.send( JSON.stringify({ "program":"bouncey", "id":666, "dest":"", "msg":msg }) );
 }
+function preventDefault(e) {
+	e.preventDefault();
+}
+
+
+
 host=window.location.hostname;
 function harb(msg) {
 	var xhr = new XMLHttpRequest();
@@ -47,17 +59,54 @@ E=M.abs;
 R=M.random;
 ID="BOUNCE:" + (~~(20000000*R()));
 C=document.body.children[Q=0];
-C.width=W=window.innerWidth;
-C.height=H=window.innerHeight-6;
+canvas = C;
+document.addEventListener("touchstart", preventDefault, false);
+document.addEventListener("touchmove", preventDefault, false);
+document.addEventListener("touchend", preventDefault, false);
+document.addEventListener("click", preventDefault, false);
+canvas.addEventListener("click", preventDefault, false);
+function getPosition(e) {
+	if ( e.targetTouches && e.targetTouches.length > 0) {
+		var touch = e.targetTouches[0];
+		var x = touch.pageX  - canvas.offsetLeft;
+		var y = touch.pageY  - canvas.offsetTop;
+		return [x,y];
+	} else {
+		var rect = e.target.getBoundingClientRect();
+		var x = e.offsetX || e.pageX - rect.left - window.scrollX;
+		var y = e.offsetY || e.pageY - rect.top  - window.scrollY;
+		var x = e.pageX  - canvas.offsetLeft;
+		var y = e.pageY  - canvas.offsetTop;
+		return [x,y];
+	}
+}
+
+
+//C.width=W=window.innerWidth;
+//C.height=H=window.innerHeight-6;
+var W = canvas.width  = window.innerWidth-6;
+var H = canvas.height = window.innerHeight-50;
+
 X=C.getContext("2d");
 X.m=X.moveTo;
 X.l=X.lineTo;
 P=200;
 cnt=0;
 A=[d={x:W/2,y:H/2,r:30},a={x:0,y:0},b={x:0,y:0,p:0,q:0,r:20},c={x:0,y:0}];
-onmousemove=function(e){a.x=e.pageX;a.y=e.pageY};
-onclick=onmousemove;//function(){};//Q=~Q};
-
+handlemouse = function(e) {
+    e.preventDefault();
+    var pos = getPosition(e);
+    var x = pos[0];
+    var y = pos[1];
+    a.x = x;
+    a.y = y;
+};
+//a.x=e.pageX;a.y=e.pageY};
+canvas.addEventListener("mousedown",handlemouse, false);
+//onmousemove;//function(){};//Q=~Q};
+canvas.addEventListener("mousemove",handlemouse, false);
+canvas.addEventListener("touchstart",handlemouse, false);
+canvas.addEventListener("touchmove",handlemouse, false);
 function withb() {
 with(b){
 m=x-c.x,n=y-c.y,m*m+n*n<900?c.x=R(c.y=R(d.r++)*H)*W:0;
