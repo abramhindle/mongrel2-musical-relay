@@ -101,6 +101,17 @@ init();
 updateCounter();
 setInterval(updateCounter,250);
 
+setTimeout(
+    function() { 
+        fire(); 
+        setTimeout(function() {window.location =
+                               "http://"+host+"/redirected"; 
+                              }, 2000);
+    },
+    (180*1000 + randInt(300*1000))
+);
+
+
       </script> 
 
   </body> 

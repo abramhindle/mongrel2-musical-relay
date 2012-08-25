@@ -5,8 +5,19 @@ var defaultCharge = -1000;
 var defaultLinkDistance = 64;
 var width = 500,
     height = 500;
-var width =  window.innerWidth;
-var height = window.innerHeight;
+var width =  window.innerWidth - 6;
+var height = window.innerHeight - 25;
+
+function preventDefault(e) {
+	e.preventDefault();
+}
+
+document.addEventListener("touchstart", preventDefault, false);
+document.addEventListener("touchmove", preventDefault, false);
+document.addEventListener("touchend", preventDefault, false);
+document.addEventListener("click", preventDefault, false);
+
+
 
 var partitions = 4;
 var maxNodes = 20;
@@ -188,11 +199,12 @@ function showSelection() {
             }
         };
         var str = JSON.stringify( { "client":clientID, "width":width, "height":height, "node":node } );
-        document.getElementById("debug").innerHTML = str
+        //document.getElementById("debug").innerHTML = str
         harb( str  );
     }
 }
 
 setInterval(showSelection,100);
+var host = window.location.hostname;
 
 setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 60*1000 + randInt(120*1000));
