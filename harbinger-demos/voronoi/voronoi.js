@@ -12,6 +12,14 @@ function harb(msg) {
     }
 }
 
+function preventDefault(e) {
+	e.preventDefault();
+}
+document.addEventListener("touchstart", preventDefault, false);
+document.addEventListener("touchmove", preventDefault, false);
+document.addEventListener("touchend", preventDefault, false);
+document.addEventListener("click", preventDefault, false);
+
 
 
 var width =  window.innerWidth;
@@ -23,12 +31,13 @@ var svg = d3.select("#chart")
     .attr("width", width)
     .attr("height", height)
     .attr("class", "PiYG")
-    .on("touchmove", update)
-    .on("touchstart", update)
+    .on("touchmove", touchUpdate)
+    .on("touchstart", touchUpdate)
+    //.on("click", preventDefault)
     .on("mousedown", update)
     .on("mousemove", update);
 
-function disableDragging(e) {
+function disableDragging() {
   if(d3.event.preventDefault)
     d3.event.preventDefault();
 }
@@ -61,9 +70,30 @@ function polygonArea(coordinates) {
 function update() {
   disableDragging();
   vertices[0] = d3.mouse(this);
+  /*
   if (debug==null) {
 	debug = document.getElementById("myDebug");
   } 
+  */
+  dealWithVertices();
+};
+function touchUpdate() {
+    disableDragging();
+    var touches = d3.touches(this);
+    if (touches.length > 0) {
+        vertices[0] = touches[0];
+        dealWithVertices();
+    }
+
+  /*
+  if (debug==null) {
+	debug = document.getElementById("myDebug");
+  } 
+  */
+
+};
+
+function dealWithVertices() {
   var geom = d3.geom.voronoi(vertices);
   var x = svg.selectAll("path")
       .data( geom

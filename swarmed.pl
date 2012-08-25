@@ -50,13 +50,13 @@ my $notphone = sub {
 my $startime = undef;
 # hack per minute
 my @timeline = (
-                [0 ,qw(button tableforce force)],
+                [0 ,qw(button tableforce force cloth)],
                 [2 ,qw(button tableforce force voronoi)],
-                [4 ,qw(button tableforce force voronoi bouncey)],
-                [6 ,qw(button voronoi bouncey env)],
-                [8 ,qw(button voronoi bouncey env cloth)],
-                [10,qw(button voronoi bouncey env cloth)],
-                [12,qw(env tableforce force)],
+                [4 ,qw(button tableforce force voronoi bouncey env)],
+                [6 ,qw(button voronoi bouncey env cloth)],
+                [8 ,qw(button voronoi bouncey env cloth env)],
+                [10,qw(button voronoi bouncey env cloth env env)],
+                [12,qw(env tableforce force env voronoi bouncey env cloth)],
 );
 
 
