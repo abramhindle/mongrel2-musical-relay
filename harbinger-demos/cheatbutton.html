@@ -1,0 +1,123 @@
+<!doctype html> 
+<html> 
+  <head> 
+    <title>Button</title> 
+    <meta charset="utf-8" /> 
+    <script src="json2.js"></script>
+    <style type="text/css" media="screen">
+    * { 
+        margin: 0; 
+    }
+
+    html, 
+    body { 
+        height: 100%; 
+	background: black;
+	color: yellow;
+    }
+    button {
+	background: yellow;
+	color: black;
+    }
+
+    #table {
+        min-height: 100%;
+        height:     auto !important;
+        height:     100%;
+    }
+
+    </style>
+</head>
+
+  </head> 
+  <body width="100%" height="100%"> 
+    <table width="100%" height="25%">
+    <tr><td>seconds</td><td>N</td><td>Spacing</td></tr>
+    <tr width="100%" height="10%">
+
+    <td width="33%" height="30%">
+      <select id="seconds" style="width: 100%; height: 100%;">
+      <option value="1">1</option>
+      <option value="10">10</option>
+      <option value="30">30</option>
+      <option value="60">60</option>
+      <option value="120">120</option>
+      <option value="240">240</option>
+      <option value="480">480</option>
+      </select>
+    </td>
+    <td width="33%" height="100%">
+      <select id="bells" style="width: 100%; height: 100%;">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="8">8</option>
+      <option value="12">12</option>
+      <option value="20">20</option>
+      <option value="30">30</option>
+      <option value="60">60</option>
+      <option value="120">120</option>
+      </select>
+    </td>
+    <td width="33%" height="100%">
+      <select id="spacing" style="width: 100%; height: 100%;">
+      <option value="0.0">0.0</option>
+      <option value="0.05">0.05</option>
+      <option value="0.1">0.1</option>
+      <option value="0.2">0.2</option>
+      <option value="0.4">0.4</option>
+      <option value="0.8">0.8</option>
+      <option value="1.6">1.6</option>
+      <option value="3.2">3.2</option>
+      <option value="6.4">6.4</option>
+      </select>
+    </td>
+    </tr>
+    </table>
+      </div>
+      <button onclick="javascript:fire()"  style="height: 90%; width: 100%;">
+          <font size=100>
+            FIRE
+          </font>
+        </button>
+      <script> 
+function randInt(i) {
+    return Math.floor( Math.random() * i );
+}
+
+var clientID = randInt( 2000000000 );
+     
+var host=window.location.hostname;
+function harb(msg) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST","http://"+host+"/harbinger", true); // don't need a response
+        // was button
+        xhr.setRequestHeader("Content-type", "text/plain");
+	xhr.send( JSON.stringify({ "program":"cloth", "id":666, "dest":"", "msg":msg }) );
+}
+
+function readSelect(id) {
+    var e = document.getElementById(id);
+    return e.options[e.selectedIndex].value;
+}
+function ring(seconds) {
+    harb( clientID + "\nbell " + seconds + "\n" );
+}
+
+function fire() {
+    //harb( {"counter":counter} );
+    var seconds = readSelect("seconds");
+    var bells = readSelect("bells");
+    var spacing = readSelect("spacing");
+    for (var i = 0 ; i < bells ; i++) {
+        setTimeout(function() { ring(seconds) },1000 * i * spacing);
+    }
+}
+
+
+      </script> 
+
+  </body> 
+</html>
