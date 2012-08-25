@@ -183,6 +183,6 @@ function showSelection() {
     }
 }
 var host = window.location.hostname;
-
-setInterval(showSelection,100);
 setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 60*1000 + randInt(120*1000));
+setInterval(showSelection,100);
+

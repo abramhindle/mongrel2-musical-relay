@@ -206,5 +206,4 @@ function showSelection() {
 
 setInterval(showSelection,100);
 var host = window.location.hostname;
-
 setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 60*1000 + randInt(120*1000));
