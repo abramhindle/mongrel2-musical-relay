@@ -1,6 +1,14 @@
 var rate = 10.0;
 var host = window.location.hostname;
 var lastharb = 0;
+
+function randInt(i) {
+    return Math.floor( Math.random() * i );
+}
+
+var clientID = randInt( 2000000000 );
+
+
 function harb(msg) {
     var time = (new Date).getTime();
     var diff = time - lastharb
@@ -104,7 +112,7 @@ function dealWithVertices() {
   var parea = polygonArea(poly1); 
   var narea = parea / marea;
   var perimiter = d3.sum(x[0].map(function(d) { return d.getTotalLength(); }));
-  var out = { 'area':parea, 'narea':narea, 'perimiter':perimiter, 'x':vertices[0][0], 'y':vertices[0][1] };
+    var out = { 'area':parea, 'narea':narea, 'perimiter':perimiter, 'x':vertices[0][0], 'y':vertices[0][1], 'client':clientID };
   var sout = JSON.stringify(out);
   harb(sout);
   //debug.innerHTML = sout;

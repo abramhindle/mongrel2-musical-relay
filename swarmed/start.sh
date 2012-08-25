@@ -1,4 +1,5 @@
 #!/bin/sh
+sudo echo got sudo
 killall jackd
 killall mongrel2
 killall m2sh
@@ -6,7 +7,7 @@ killall m2sh
 # this is so that later sudos are handled.
 sudo echo Sudo Up.
 sudo bash init-swarmed-network.sh
-sudo /etc/init.d/dnsmasq restart
+#sudo /etc/init.d/dnsmasq restart
 cd ~/projects/mongrel2-musical-relay/
 rm -rf ~/projects/mongrel2-musical-relay/run
 mkdir ~/projects/mongrel2-musical-relay/run

@@ -34,6 +34,7 @@ sub new_ball {
         ID => $ID,
         x => 0,
         y => 0,
+        pitchmod => (rand(1.0) > 0.5)?(0.5 + rand(2.0)):(0.5 + rand(0.7)),
         instrument => $instrs[$instr_cnt++ % @instrs],
     }
 }
@@ -51,6 +52,7 @@ sub filterit {
         my $ball = get_ball($ID);
         my $freq;
         my $loudness;
+        my $pmod = $ball->{pitchmod};
         my $radius = 10+rand()*100;
         my ($x,$y) = ($bx,$by);
         my $xv = $bx - $ball->{x};
@@ -75,7 +77,7 @@ sub filterit {
             
             $nmsg =  cs("1902",0.01,0.1 + 0.2 * abs(cos($sxv * $syv)),
                         100+2000*$theta*log(1.0 + $sxv*$sxv + $syv * $syv)/24.0,
-                        (6.000 +  $theta2 / PI + 3.0 * log(1.0 + ($sxv*$sxv+$syv*$syv)/(100+$sx + $sy))/24.0),#pitch
+                        (6.000 +  $theta2 / PI + 3.0 * log(1.0 + ($sxv*$sxv+$syv*$syv)/(100+$sx + $sy))/24.0)*$pmod,#pitch
                         0.9, 0.136, 0.45, 0.40);
 
 
@@ -93,7 +95,7 @@ sub filterit {
             my $pressure = 1.0 + 0.1 * log($mass)/30.0 + 0.9  * $theta / PI;
             $nmsg = cs("1903", 0.01, $dur,
                        $amp,
-                       $pitch,
+                       $pitch*$pmod,
                        $pressure,
                        $filter,
                        0.2,
@@ -103,7 +105,7 @@ sub filterit {
             my $loudness = 0.3*(100 + $sy);
             my $pitch = 10 + 100*$sx;
             my $wait = 0.001+0.2*rand();
-            $nmsg = cs("1", $wait, $duration, $loudness, $pitch);
+            $nmsg = cs("1", $wait, $duration, $loudness, $pitch*$pmod);
             warn $nmsg;
         }
         
