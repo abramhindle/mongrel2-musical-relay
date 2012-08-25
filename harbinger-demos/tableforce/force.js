@@ -130,15 +130,17 @@ var svg = d3.select("#chart").append("svg")
       .data(nodes)
       .call(function () {
         var old = this.on("mousedown");
-        this.on("mousedown", function(d) {
+        var f = function(d) {
             if(d3.event.preventDefault)
                 d3.event.preventDefault();
-
             selectedNode = this;
             if (typeof old == "function") {
                 return old(d);
             }
-        });
+        };
+        this.on("mousedown", f );
+        this.on("touchstart", f );
+
     });
 /*
   var node = svg.selectAll("circle.node")

@@ -18,5 +18,5 @@ urxvt +j -e perl 404.pl &
 urxvt +j -e perl http_harbinger.pl &
 urxvt +j -e perl http_harbinger.pl &
 sleep 1
-bash ~/projects/swarmed/instr.sh
+bash ~/projects/mongrel2-musical-relay/swarmed/instr.sh
 qjackctl &

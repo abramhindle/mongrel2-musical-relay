@@ -24,7 +24,8 @@ var svg = d3.select("#chart")
     .attr("height", height)
     .attr("class", "PiYG")
     .on("touchmove", update)
-    .on("mousedown", disableDragging)
+    .on("touchstart", update)
+    .on("mousedown", update)
     .on("mousemove", update);
 
 function disableDragging(e) {

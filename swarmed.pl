@@ -85,7 +85,7 @@ my %apps = (
             cloth => {
                       name => "Cloth",
                       url => "$route_addr/demos/cloth.html",
-                      allowed => $notphone,
+                      allowed => $dfl,
                      },
             button => {
                       name => "Virtual Triangle",

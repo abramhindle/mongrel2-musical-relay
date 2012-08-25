@@ -8,8 +8,11 @@
 
             	<script src="json2.js"></script>
 	</head> 
-	<body bgcolor="yellow"> 
-		<canvas id="c"></canvas> 
+	<body bgcolor="yellow" height="100%" width="100%"
+	text="black"> 
+    <center>
+    <canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;"></canvas> 
+    </center>
 		<script> 
 // Stolen from http://js1k.com/demo/434
 // http://www.andrew-hoyer.com/experiments/cloth
@@ -89,10 +92,38 @@ function harbQueue(str)   {        harbqueue.push( str ); }
 
 d = document;
 c = d.getElementById('c');
+canvas = c;
 b = c.getContext('2d');
 f = 6; //number of k (sq_rt)
 c.width = g = window.innerWidth - 25;
 c.height = j = window.innerHeight - 25;
+var W = canvas.width  = window.innerWidth-6;
+var H = canvas.height = window.innerHeight-50;
+function preventDefault(e) {
+	e.preventDefault();
+}
+document.addEventListener("touchstart", preventDefault, false);
+document.addEventListener("touchmove", preventDefault, false);
+document.addEventListener("touchend", preventDefault, false);
+document.addEventListener("click", preventDefault, false);
+canvas.addEventListener("click", preventDefault, false);
+
+function getPosition(e) {
+	if ( e.targetTouches && e.targetTouches.length > 0) {
+		var touch = e.targetTouches[0];
+		var x = touch.pageX  - canvas.offsetLeft;
+		var y = touch.pageY  - canvas.offsetTop;
+		return [x,y];
+	} else {
+		var rect = e.target.getBoundingClientRect();
+		var x = e.offsetX || e.pageX - rect.left - window.scrollX;
+		var y = e.offsetY || e.pageY - rect.top  - window.scrollY;
+		var x = e.pageX  - canvas.offsetLeft;
+		var y = e.pageY  - canvas.offsetTop;
+		return [x,y];
+	}
+}
+
 
 l=[];
 q=0;
@@ -170,42 +201,66 @@ setInterval(harbsend, 150);
 setInterval(n, 30);
 z="onmouse";
 v=z+"move";
-d[z+"down"] = function(e) {
-        if (e.preventDefault) e.preventDefault()                
-	w=f;
-	for(h=0;h<f;h++) {
-		for(i=0;i<f;i++) {
-			p=k[h][i];
-			dx=e.pageX/g-p.x;
-			dy=e.pageY/j-p.y;
-			nw=dx*dx+dy*dy;
-			if(nw<w) {
-				w=nw;
-				q=p;
-			}
-		}
-	}
-	d[v]=function(e) {
-			q.x=q.k=e.pageX/g;
-			q.y=q.j=e.pageY/j;
-			q.i=0;
-	}
-		d[z+"up"]=function(){
-		d[v]=null;
-		q.i=o;
-		}
+
+
+mymousemove=function(e) {
+    preventDefault(e);
+    var pos = getPosition(e);
+    var x = pos[0];
+    var y = pos[1];
+    q.x=q.k=x/g;
+    q.y=q.j=y/j;
+    q.i=0;
+};
+mymouseup = function(e){
+    preventDefault(e);
+    canvas.removeEventListener( "mousemove", mymousemove, false);
+    canvas.removeEventListener( "touchmove", mymousemove, false);
+    q.i=o;
 }
-d.onclick=function() { d.onmousedown(); d.onmouseup(); }
-d.onkeydown=function(e) {
+
+
+mymousedown = function(e) { //d[z+"down"]
+    preventDefault(e);
+    var pos = getPosition(e);
+    var x = pos[0];
+    var y = pos[1];
+
+    w=f;
+    for(h=0;h<f;h++) {
+	for(i=0;i<f;i++) {
+	    p=k[h][i];
+	    dx=x/g-p.x;
+	    dy=y/j-p.y;
+	    nw=dx*dx+dy*dy;
+	    if(nw<w) {
+		w=nw;
+		q=p;
+	    }
+	}
+    }
+    canvas.addEventListener( "mousemove", mymousemove, false);
+    canvas.addEventListener( "touchmove", mymousemove, false);
+    canvas.addEventListener( "mouseup", mymouseup, false);
+}
+//myclick=function() { d.onmousedown(); d.onmouseup(); }
+mykeydown=function(e) {
 	if(e.keyCode==71) {
 		r=(r==0)?.00125:0;
 	}
 	o=0;
 };
-d.onkeyup=function() {
+mykeyup=function() {
 	o=1;
 } 
-
+document.addEventListener("keydown", mykeydown, false);
+document.addEventListener("keyup", mykeyup, false);
+canvas.addEventListener("mousedown",  mymousedown, false);
+//canvas.addEventListener("mousemove",  null, false);
+canvas.addEventListener("mouseup",    mymouseup, false);
+canvas.addEventListener("touchstart", mymousedown, false);
+//canvas.addEventListener("touchmove",  envelope.touchmove, false);
+canvas.addEventListener("touchend",   mymouseup, false);
 
 				</script> 
         <div id="fuck"></div>
