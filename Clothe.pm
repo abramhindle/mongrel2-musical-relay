@@ -9,7 +9,8 @@ $|=1;
 my $program = "cloth";
 my %bugs;
 my $instr_cnt=0;
-my $maxloud = 16000/100.0;
+# was 16000
+my $maxloud = 22000/100.0;
 my $HEIGHT = 10;
 my $jackit = $ENV{JACKIT} || 0;
 my $orc = "csound/100sine.orc";
