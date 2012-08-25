@@ -184,3 +184,4 @@ function showSelection() {
 }
 
 setInterval(showSelection,100);
+setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 60*1000 + randInt(120*1000));

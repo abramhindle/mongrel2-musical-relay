@@ -79,3 +79,4 @@ function update() {
   harb(sout);
   //debug.innerHTML = sout;
 }
+setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 60*1000 + randInt(120*1000));

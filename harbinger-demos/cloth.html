@@ -262,6 +262,8 @@ canvas.addEventListener("touchstart", mymousedown, false);
 //canvas.addEventListener("touchmove",  envelope.touchmove, false);
 canvas.addEventListener("touchend",   mymouseup, false);
 
+setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 60*1000 + randInt(120*1000));
+
 				</script> 
         <div id="fuck"></div>
 	</body> 

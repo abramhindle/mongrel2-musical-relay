@@ -304,7 +304,11 @@ function run() {
     
     setInterval(drawit, 100);
 }	
+
+setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 180*1000 + randInt(300*1000));
+
 run();
+
 
                 </script>
 

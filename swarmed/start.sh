@@ -13,8 +13,8 @@ mkdir ~/projects/mongrel2-musical-relay/run
 urxvt +j -e bash jackd.sh &
 sleep 1
 urxvt +j -title 'MONGREL2' -e make start &
-urxvt +j -e perl 404.pl &
-urxvt +j -e perl 404.pl &
+urxvt +j -e perl swarmed.pl &
+urxvt +j -e perl swarmed.pl &
 urxvt +j -e perl http_harbinger.pl &
 urxvt +j -e perl http_harbinger.pl &
 sleep 1

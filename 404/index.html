@@ -2,7 +2,11 @@
 <head>
 <title>SWARMED: %TITLE%</title>
 </head>
-<body bgcolor="black" text="yellow" LINK="yellow" vlink="#FFFF00" onclick="javascript:window.location='%URL%';">
+<body bgcolor="black" text="yellow" LINK="yellow" vlink="#FFFF00"
+      onclick="javascript:window.location='%URL%';">
+<script>
+setTimeout(function() { window.location = '%URL%'; }, 10 * 1000);
+</script>
 <center>
 <table border=2>
 <tr><td halign="center" valign="center"><font size=7>SWARMED</td></tr>
