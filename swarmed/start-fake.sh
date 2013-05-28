@@ -3,8 +3,10 @@ killall jackd
 killall mongrel2
 killall m2sh
 
+
 # this is so that later sudos are handled.
 sudo echo Sudo Up.
+sudo /etc/init.d/lighttpd stop
 sudo bash fake-network.sh
 #sudo /etc/init.d/dnsmasq restart
 cd ~/projects/mongrel2-musical-relay/

@@ -66,4 +66,7 @@ in sudoers
 
 hindle1 ALL=(ALL) NOPASSWD: /usr/sbin/privbind
 
+Here's what we added to dnsmasq.conf
+address=/#/10.20.30.1
+address=//10.20.30.1
 
