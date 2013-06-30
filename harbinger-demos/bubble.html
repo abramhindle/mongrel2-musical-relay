@@ -1,0 +1,376 @@
+<!doctype html> 
+<html> 
+	<head> 
+		<title>SWARMED: Bubble-wrap</title>
+		<meta charset="utf-8" /> 
+                <meta content='width=device-width; height=device-height; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;' name='viewport' />
+                <meta name="viewport" content="width=device-width" />
+            	<script src="json2.js"></script>
+	</head> 
+	<body bgcolor="black" height="100%" width="100%" text="yellow"> 
+    
+    <center>
+    <canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;"></canvas> 
+    </center>
+    <div id="debug"></div>
+		<script> 
+var canvas = document.getElementById("c");
+var W = canvas.width  = window.innerWidth-6;
+var H = canvas.height = window.innerHeight-50;
+var context = canvas.getContext("2d");
+function debug(s) {
+    document.getElementById("debug").innerHTML += " "+s;
+}
+function preventDefault(e) {
+	e.preventDefault();
+}
+document.addEventListener("touchstart", preventDefault, false);
+document.addEventListener("touchmove", preventDefault, false);
+document.addEventListener("touchend", preventDefault, false);
+document.addEventListener("click", preventDefault, false);
+canvas.addEventListener("click", preventDefault, false);
+
+function getPosition(e) {
+	if ( e.targetTouches && e.targetTouches.length > 0) {
+		var touch = e.targetTouches[0];
+		var x = touch.pageX  - canvas.offsetLeft;
+		var y = touch.pageY  - canvas.offsetTop;
+		return [x,y];
+	} else {
+		var rect = e.target.getBoundingClientRect();
+		var x = e.offsetX || e.pageX - rect.left - window.scrollX;
+		var y = e.offsetY || e.pageY - rect.top  - window.scrollY;
+		var x = e.pageX  - canvas.offsetLeft;
+		var y = e.pageY  - canvas.offsetTop;
+		return [x,y];
+	}
+}
+
+
+
+function randInt(i) {
+    return Math.floor( Math.random() * i );
+}
+var clientID = (location.hash && location.hash.substring(1))?location.hash.substring(1):randInt( 2000000000 );
+var host = window.location.hostname;
+var buttonDown = false;
+
+/* XXX unclean! */
+
+/*
+  * TODOS 
+    - [ ] Range
+    - [ ] Center -- e.g. -1 to 1
+    - [ ] Harbinger JSON export
+    - [ ] Interactive updates?
+    
+*/
+
+function install(original, newone) {
+    if (original) {
+        return function(e) {
+            original(e);
+            newone(e);
+        }
+    } else {
+        return newone;
+    }
+}
+
+function newZeroArray(len) {
+    var arr = new Array(len);
+    for (var i = 0 ; i < len ; i++ ) {
+        arr[i] = 0;
+    }
+    return arr;
+}
+
+function run() {
+    
+    var update;
+
+    var updateable = 1;
+    function signalUpdate() {
+        updateable = 1;
+    }
+
+
+
+    function Bubbles( options ) {
+	var default_args = {
+	    'N'	   :	64,
+            'Rows' :    8,
+            'Cols' :    8,
+	    'W'   :	W,
+	    'H'   :	H,
+            'pos' :     [0,0],
+	    'col'  :	"#FFFF00",
+	    'ucol'  :	"#00FFFF",
+            'dcol'  :   "#FF0000",
+            'range':    [0,1],
+            'rad' :     50,            
+	}
+	for(var index in default_args) {
+	    if(typeof options[index] == "undefined") options[index] = default_args[index];
+	}
+        var Rows = options.Rows;
+        var Cols = options.Cols;
+        var N = options.N;
+        var eW = options.W;
+        var eH = options.H;
+        var col = options.col;
+        var ucol = options.ucol;
+        var dcol = options.dcol;
+        var range = options.range;
+        var epos = options.pos;
+        var arr = newZeroArray(Cols * Rows);
+	var iw = eW/N;
+        var rad = Math.min(eW/(1.0*Cols),eH/(1.0*Rows)) / 2;
+	var self;
+        var offX = epos[0];
+        var offY = epos[1];        
+	self = {
+            since: Date.now(),
+            queue: [],
+            selected: -1,
+            arr: arr,
+            rad: rad,
+	    name: "bubble",
+	    width: eW,
+	    height: eH,
+            offX: offX,
+            offY: offY,
+	    clicked: 0,
+            serialize: function() {
+                return {
+                    values: self.arr,
+                    range:  range,
+                    name: name
+                }
+            },
+	    draw: function(context) {
+	        with(context){
+	            lineWidth = 3;
+                    var zeroy = eH;
+                    moveTo(offX,offY);
+	            for (var i = 0; i < Rows; i++) {
+	                for (var j = 0; j < Cols; j++) {
+                            var index = Cols*i + j;
+                            var s = self.arr[ index ];
+                            if (s > 0) {
+                                beginPath();                            
+	                        fillStyle = (index==self.selected)?dcol:col;
+	                        strokeStyle = fillStyle;                           
+	                        arc(offX + j*2*rad + rad/2, offY + i * 2 * rad + rad/2, rad - 15 + i + j, Math.PI, 2*Math.PI  ,true );
+                                stroke();
+                            } else {
+                                beginPath();                            
+	                        fillStyle = (index==self.selected)?dcol:ucol;
+	                        strokeStyle = fillStyle;                           
+	                        arc(offX + j*2*rad + rad/2, offY + i * 2 * rad + rad/2, rad - 15 + i + j, 0, Math.PI * 2 ,true );
+	                        //arc(offX + j*rad + rad/3, offY + i * rad + rad/3, 5, 0, Math.PI * 2 ,true );
+
+                                stroke();
+                            } 
+	                }
+                    }
+	        }
+                //alert("drawn");
+	    },
+            wasClicked: function(e) {
+                var pos = getPosition(e);
+                var x = pos[0];
+                var y = pos[1];
+                if (x >= offX && x <= offX + eW && y >= offY && y <= offY + eH) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            },
+            timeSince: function() {
+                var now = Date.now();
+                var since = self.since;
+                self.since = now;
+                return now - since;
+            },
+            emitPop: function(x,y) {
+                self.queue.push({'type': 'pop', 'x':x, 'y':y, 'since':self.timeSince()});
+            },
+            emitCrinkle: function(x,y) {
+                self.queue.push({'type': 'crinkle', 'x':x, 'y':y,'since':self.timeSince()});
+            },
+            emitScratch: function(x,y) {
+                self.queue.push({'type': 'scratch', 'x':x, 'y':y,'since':self.timeSince()});
+            },
+
+	    poppin: function(x,y) {
+                var yy = ~~(y/(2*self.rad));
+                var xx = ~~(x/(2*self.rad));                
+                var i = yy * Cols + xx;
+                if (xx < Cols && xx >= 0 && yy < Rows && yy >= 0) {
+                    //alert(x + " " + y + " " + i);
+                    if (self.arr[i] < 1) {
+                        self.emitPop(xx,yy);
+                    } else {
+                        self.emitCrinkle(xx,yy);
+                    }
+	            self.arr[i] += 1;
+                    //alert(i + " " + arr[i]);
+                    signalUpdate();
+                }
+	    },
+	    squeakin: function(x,y) {
+                var yy = ~~(y/(2*self.rad));
+                var xx = ~~(x/(2*self.rad));                
+                var i = yy * Cols + xx;
+                if (xx < Cols && xx >= 0 && yy < Rows && yy >= 0) {
+                    self.selected = i;
+                    //alert(x + " " + y + " " + i);
+	            //self.arr[i] = 1;
+                    if (self.arr[i] < 1) {
+                        self.emitScratch(xx,yy);
+                    } else {
+                        self.emitCrinkle(xx,yy);
+                    }
+                    signalUpdate();
+                }
+	    },
+	    mousedown: function(e) {
+                e.preventDefault();
+                if (self.wasClicked(e)) {
+                    var pos = getPosition(e);
+                    var x = pos[0];
+                    var y = pos[1];
+                    
+	            self.clicked = 1;
+	            //self.clickin(x,y);
+                }
+	    },
+	    mouseup: function(e) {
+                e.preventDefault();
+                if (self.wasClicked(e)) {
+                    var pos = getPosition(e);
+                    var x = pos[0];
+                    var y = pos[1];
+	            self.poppin(x,y);
+	            self.clicked = 0;
+                    self.selected = -1;
+                }
+	    },
+	    touchstart: function(e) {
+                return self.mousedown(e);
+	    },
+	    touchend: function(e) {
+                return self.mouseup(e);
+	    },
+	    mousemove: function(e) {
+                e.preventDefault();
+                if (self.wasClicked(e)) {
+                    var pos = getPosition(e);
+                    var x = pos[0];
+                    var y = pos[1];
+	            if (self.clicked != 0) {
+	                self.squeakin(x,y);
+	            }
+                }
+
+	    },
+	    touchmove: function(e) {
+                return self.mousemove(e);
+	    },
+	    
+	    mouseinstall: function() {
+	        var bubble = self;
+                canvas.addEventListener("mousedown",  bubble.mousedown, false);
+                canvas.addEventListener("mousemove",  bubble.mousemove, false);
+                canvas.addEventListener("mouseup",    bubble.mouseup, false);
+                canvas.addEventListener("mouseout",   bubble.mouseout, false);
+                canvas.addEventListener("touchstart", bubble.touchstart, false);
+                canvas.addEventListener("touchmove",  bubble.touchmove, false);
+                canvas.addEventListener("touchend",   bubble.touchend, false);
+	    },
+            copyValues: function(tarr) {
+                for (var i = 0 ; i < tarr.length; i++) {
+                    self.arr[i] = tarr[i];
+                }
+                signalUpdate();
+            }
+	};
+	return self;
+        
+    };
+	
+    var cols = ['#FF0000','#00FF00','#0000FF'];
+    var ranges = [
+        [-1,1],
+        [0,1],
+        [0,1]
+    ];
+    var bubbles = Bubbles({});
+    bubbles.mouseinstall();
+	
+    function drawit() {
+        if (updateable) {
+	    with(context) {
+	        moveTo(0,0);
+	        fillStyle = "#000";
+	        fillRect(0,0,W,H);
+	        bubbles.draw(context);
+	    }
+            updateable = update(bubbles);
+        }
+    }
+
+    function harb(msg) {
+	var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState==4) {
+                try {
+                    if (xhr.status==200) {
+                        var text = xhr.responseText;
+                        //var arrs = JSON.parse(text);
+                        //var cnt = 0;
+                    }
+                } 
+                catch(e) {
+                    alert('Error: ' + e.name);
+                }
+            }
+        };
+	xhr.open("POST","http://"+host+"/bubble");
+        xhr.overrideMimeType("application/json");
+        xhr.setRequestHeader('Accept', 'application/json');
+	xhr.send( JSON.stringify( msg ) );
+
+    }
+
+
+
+    update = function(self) {
+        //var arrs = new Array(envs.length);
+        //for (var i = 0 ; i < envs.length; i++) {
+        //    arrs[i] = envs[i].serialize();
+        //}
+        //var msg = { client: clientID, data: arrs };
+        if (self.queue.length > 0) {
+            var msg = { 'queue' : self.queue };
+            harb( msg );
+            self.queue = [];
+        }
+        return 0;
+    };
+    
+    setInterval(drawit, 100);
+}	
+
+//setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 180*1000 + randInt(300*1000));
+
+run();
+
+
+                </script>
+
+
+        </body>
+</html>
