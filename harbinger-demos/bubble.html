@@ -154,6 +154,7 @@ function run() {
                     var zeroy = eH;
                     moveTo(offX,offY);
 	            for (var i = 0; i < Rows; i++) {
+                        var xoff = (i%2==0)?0:rad;
 	                for (var j = 0; j < Cols; j++) {
                             var index = Cols*i + j;
                             var s = self.arr[ index ];
@@ -161,13 +162,17 @@ function run() {
                                 beginPath();                            
 	                        fillStyle = (index==self.selected)?dcol:col;
 	                        strokeStyle = fillStyle;                           
-	                        arc(offX + j*2*rad + rad/2, offY + i * 2 * rad + rad/2, rad - 15 + i + j, Math.PI, 2*Math.PI  ,true );
+	                        arc(xoff + offX + j*2*rad + rad, offY + i * 2 * rad + rad, 
+                                    rad-5, Math.PI, 2*Math.PI  ,true );
+                                    //rad - 15 + i + j, Math.PI, 2*Math.PI  ,true );
                                 stroke();
                             } else {
                                 beginPath();                            
 	                        fillStyle = (index==self.selected)?dcol:ucol;
 	                        strokeStyle = fillStyle;                           
-	                        arc(offX + j*2*rad + rad/2, offY + i * 2 * rad + rad/2, rad - 15 + i + j, 0, Math.PI * 2 ,true );
+	                        arc(xoff + offX + j*2*rad + rad, offY + i * 2 * rad + rad, 
+                                    rad-5, 0, Math.PI * 2 ,true );
+                                //  rad - 15 + i + j, 0, Math.PI * 2 ,true );
 	                        //arc(offX + j*rad + rad/3, offY + i * rad + rad/3, 5, 0, Math.PI * 2 ,true );
 
                                 stroke();
@@ -205,7 +210,8 @@ function run() {
 
 	    poppin: function(x,y) {
                 var yy = ~~(y/(2*self.rad));
-                var xx = ~~(x/(2*self.rad));                
+                //var xx = ~~(x+((yy%2)*rad)/(2*self.rad));                
+                var xx = ~~((x-((yy%2)?self.rad:0))/(2*self.rad));                
                 var i = yy * Cols + xx;
                 if (xx < Cols && xx >= 0 && yy < Rows && yy >= 0) {
                     //alert(x + " " + y + " " + i);
@@ -221,18 +227,24 @@ function run() {
 	    },
 	    squeakin: function(x,y) {
                 var yy = ~~(y/(2*self.rad));
-                var xx = ~~(x/(2*self.rad));                
+                //var xx = ~~(x/(2*self.rad));                
+                var xx = ~~((x-((yy%2)?self.rad:0))/(2*self.rad));                
+
                 var i = yy * Cols + xx;
                 if (xx < Cols && xx >= 0 && yy < Rows && yy >= 0) {
-                    self.selected = i;
-                    //alert(x + " " + y + " " + i);
-	            //self.arr[i] = 1;
-                    if (self.arr[i] < 1) {
-                        self.emitScratch(xx,yy);
-                    } else {
-                        self.emitCrinkle(xx,yy);
+                    // don't double sell
+                    if (i != self.selected) {
+                        self.selected = i;
+                        //alert(x + " " + y + " " + i);
+	                //self.arr[i] = 1;
+                        if (self.arr[i] < 1) {
+                            self.emitScratch(xx,yy);
+                        } else {
+                            self.emitCrinkle(xx,yy);
+                        }
                     }
                     signalUpdate();
+
                 }
 	    },
 	    mousedown: function(e) {
@@ -364,7 +376,7 @@ function run() {
     setInterval(drawit, 100);
 }	
 
-//setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 180*1000 + randInt(300*1000));
+setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 180*1000 + randInt(300*1000));
 
 run();
 
