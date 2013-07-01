@@ -60,11 +60,16 @@ my %apps = (
 #                      url => "/demos/envelope.html",
 #                      allowed => $notandroid2,
 #                     },
-            env => {
-                      name => "Envelope",
-                      url => "/demos/envelope.html",
-                      allowed => $dfl,
-                     },
+           env => {
+                     name => "Envelope",
+                     url => "/demos/envelope.html",
+                     allowed => $dfl,
+                    },
+#           bubble => {
+#                     name => "Bubble",
+#                     url => "/demos/bubble.html",
+#                     allowed => $dfl,
+#                    }
 #            env_android => {
 #                      name => "Envelope",
 #                      url => "/demos/envelope-android.html",

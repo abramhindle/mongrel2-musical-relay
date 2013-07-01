@@ -14,3 +14,5 @@ killall -9 m2sh
 rm -rf /home/hindle1/projects/mongrel2-musical-relay/run/
 sudo killall dnsmasq
 sudo killall -9 dnsmasq
+killall sclang
+killall scsynth

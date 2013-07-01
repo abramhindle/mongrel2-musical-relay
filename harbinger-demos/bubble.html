@@ -104,7 +104,7 @@ function run() {
 	    'W'   :	W,
 	    'H'   :	H,
             'pos' :     [0,0],
-	    'col'  :	"#FFFF00",
+	    'col'  :	"#FFFFFF",
 	    'ucol'  :	"#00FFFF",
             'dcol'  :   "#FF0000",
             'range':    [0,1],
@@ -260,6 +260,7 @@ function run() {
 	    },
 	    mouseup: function(e) {
                 e.preventDefault();
+                //alert(getPosition(e));
                 if (self.wasClicked(e)) {
                     var pos = getPosition(e);
                     var x = pos[0];
@@ -270,10 +271,12 @@ function run() {
                 }
 	    },
 	    touchstart: function(e) {
+                self.lasttouch = e;                                         
                 return self.mousedown(e);
 	    },
 	    touchend: function(e) {
-                return self.mouseup(e);
+                var touch = (self.lasttouch)?self.lasttouch:e;
+                return self.mouseup(touch);
 	    },
 	    mousemove: function(e) {
                 e.preventDefault();
@@ -288,6 +291,7 @@ function run() {
 
 	    },
 	    touchmove: function(e) {
+                self.lasttouch = e;                                         
                 return self.mousemove(e);
 	    },
 	    
