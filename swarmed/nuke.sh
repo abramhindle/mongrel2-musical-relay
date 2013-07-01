@@ -16,3 +16,4 @@ sudo killall dnsmasq
 sudo killall -9 dnsmasq
 killall sclang
 killall scsynth
+sudo cp /etc/dnsmasq.conf.orig /etc/dnsmasq.conf
