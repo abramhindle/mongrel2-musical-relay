@@ -17,3 +17,4 @@ sudo killall -9 dnsmasq
 killall sclang
 killall scsynth
 sudo cp /etc/dnsmasq.conf.orig /etc/dnsmasq.conf
+echo 'echo nameserver 8.8.8.8 >> /etc/resolv.conf' | sudo sh -

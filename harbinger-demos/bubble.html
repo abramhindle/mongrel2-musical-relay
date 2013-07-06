@@ -55,16 +55,6 @@ var clientID = (location.hash && location.hash.substring(1))?location.hash.subst
 var host = window.location.hostname;
 var buttonDown = false;
 
-/* XXX unclean! */
-
-/*
-  * TODOS 
-    - [ ] Range
-    - [ ] Center -- e.g. -1 to 1
-    - [ ] Harbinger JSON export
-    - [ ] Interactive updates?
-    
-*/
 
 function install(original, newone) {
     if (original) {
@@ -84,6 +74,18 @@ function newZeroArray(len) {
     }
     return arr;
 }
+
+var aBubble = 0;
+var aPopped = 1;
+
+function newArray(len,x) {
+    var arr = new Array(len);
+    for (var i = 0 ; i < len ; i++ ) {
+        arr[i] = x;
+    }
+    return arr;
+}
+
 
 function run() {
     
@@ -123,7 +125,8 @@ function run() {
         var dcol = options.dcol;
         var range = options.range;
         var epos = options.pos;
-        var arr = newZeroArray(Cols * Rows);
+        var arr = newArray(Cols * Rows, aPopped);
+        //var arr = newZeroArray(Cols * Rows);
 	var iw = eW/N;
         var rad = Math.min(eW/(1.0*Cols),eH/(1.0*Rows)) / 2;
 	var self;
@@ -158,7 +161,7 @@ function run() {
 	                for (var j = 0; j < Cols; j++) {
                             var index = Cols*i + j;
                             var s = self.arr[ index ];
-                            if (s > 0) {
+                            if (s == aPopped) {
                                 beginPath();                            
 	                        fillStyle = (index==self.selected)?dcol:col;
 	                        strokeStyle = fillStyle;                           
@@ -215,12 +218,12 @@ function run() {
                 var i = yy * Cols + xx;
                 if (xx < Cols && xx >= 0 && yy < Rows && yy >= 0) {
                     //alert(x + " " + y + " " + i);
-                    if (self.arr[i] < 1) {
+                    if (self.arr[i] == aBubble ) {
                         self.emitPop(xx,yy);
                     } else {
                         self.emitCrinkle(xx,yy);
                     }
-	            self.arr[i] += 1;
+	            self.arr[i] = aPopped;
                     //alert(i + " " + arr[i]);
                     signalUpdate();
                 }
@@ -237,7 +240,7 @@ function run() {
                         self.selected = i;
                         //alert(x + " " + y + " " + i);
 	                //self.arr[i] = 1;
-                        if (self.arr[i] < 1) {
+                        if (self.arr[i] == aBubble ) {
                             self.emitScratch(xx,yy);
                         } else {
                             self.emitCrinkle(xx,yy);
@@ -305,6 +308,36 @@ function run() {
                 canvas.addEventListener("touchmove",  bubble.touchmove, false);
                 canvas.addEventListener("touchend",   bubble.touchend, false);
 	    },
+            findRandomValue: function(val) {
+                var i = 0;
+                var len = self.arr.length;
+                var cache = -1;
+                var n = 0;
+                for (i = 0 ; i < len; i++) {
+                    if (arr[i] == aPopped) {
+                        cache = i;
+                        n++;
+                        break;
+                    }
+                }
+                if (cache == -1) { return cache; }
+                for (i = cache; i < len; i++) {
+                    if (arr[i] == aPopped) {
+                        n++;
+                        if (Math.random() < 1.0/n) {
+                            cache = i;
+                        }
+                    }
+                }
+                return cache;
+            },
+            generateBubble: function() {
+                var i = self.findRandomValue(aPopped);
+                if (i >= 0) {
+                    arr[i] = aBubble;
+                    signalUpdate();
+                }
+            },
             copyValues: function(tarr) {
                 for (var i = 0 ; i < tarr.length; i++) {
                     self.arr[i] = tarr[i];
@@ -376,11 +409,20 @@ function run() {
         }
         return 0;
     };
-    
+    var propagateBubble = function() {
+        if (randInt(100) <= 2) {
+            bubbles.generateBubble();
+        }
+    }
+
+    setInterval(propagateBubble, 100);    
     setInterval(drawit, 100);
 }	
 
-setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 180*1000 + randInt(300*1000));
+//setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 180*1000 + randInt(300*1000));
+
+//setTimeout(function() { window.location = "http://"+host+"/redirected"; }, 180*1000 + randInt(300*1000));
+
 
 run();
 

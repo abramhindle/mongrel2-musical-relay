@@ -31,6 +31,6 @@ sudo iptables -t nat -A POSTROUTING -j MASQUERADE
 sudo iptables -A PREROUTING -t nat -p udp -d 0/0 --dport 53 -i eth0 -j REDIRECT --to-port 53
 sudo iptables -A PREROUTING -t nat -p tcp -d 0/0 --dport 53 -i eth0 -j REDIRECT --to-port 53
 
-#sudo echo nameserver 8.8.8.8 > /etc/resolv.conf
+sudo echo nameserver 8.8.8.8 > /etc/resolv.conf
 sudo cp dnsmasq.conf /etc/dnsmasq.conf
 sudo /etc/init.d/dnsmasq restart
