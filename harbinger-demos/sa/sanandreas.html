@@ -1,0 +1,235 @@
+<!doctype html> 
+<html> 
+	<head> 
+		<title>SWARMED: San Andreas</title>
+		<meta charset="utf-8" /> 
+                <meta content='width=device-width; height=device-height; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;' name='viewport' />
+                <meta name="viewport" content="width=device-width" />
+            	<script src="json2.js"></script>
+
+
+	</head> 
+	<body bgcolor="black" height="100%" width="100%" text="yellow"> 
+    
+    <center>
+    <canvas id="c" width="100%" height="100%"
+    style="-webkit-tap-highlight-color: transparent;"></canvas> 
+    </center>
+    <div id="debug"></div>
+    <script src="jquery.js"></script>
+<script type="text/javascript">
+var img;
+var canvas;
+var W;
+var H;
+var context;
+var imageMap;
+function debug(s) {
+    document.getElementById("debug").innerHTML += " "+s;
+}
+function debugR(s) {
+    document.getElementById("debug").innerHTML = " "+s;
+}
+function preventDefault(e) {
+	e.preventDefault();
+}
+function getPosition(e) {
+	if ( e.targetTouches && e.targetTouches.length > 0) {
+		var touch = e.targetTouches[0];
+		var x = touch.pageX  - canvas.offsetLeft;
+		var y = touch.pageY  - canvas.offsetTop;
+		return [x,y];
+	} else {
+		var rect = e.target.getBoundingClientRect();
+		var x = e.offsetX || e.pageX - rect.left - window.scrollX;
+		var y = e.offsetY || e.pageY - rect.top  - window.scrollY;
+		var x = e.pageX  - canvas.offsetLeft;
+		var y = e.pageY  - canvas.offsetTop;
+		return [x,y];
+	}
+}
+function randInt(i) {
+    return Math.floor( Math.random() * i );
+}
+var host = window.location.hostname;
+var buttonDown = false;
+
+function harb(msg) {
+	var xhr = new XMLHttpRequest();
+    
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState==4) {
+            try {
+                if (xhr.status==200) {
+                    var text = xhr.responseText;
+                }
+            } 
+            catch(e) {
+                alert('Error: ' + e.name);
+            }
+        }
+    };
+	xhr.open("POST","http://"+host+"/sanandreas");
+    xhr.overrideMimeType("application/json");
+    xhr.setRequestHeader('Accept', 'application/json');
+	xhr.send( JSON.stringify( msg ) );
+}
+
+function rgbToHex(r, g, b){
+    if (r > 255 || g > 255 || b > 255)
+        throw "Invalid color component";
+    return ((r << 16) | (g << 8) | b).toString(16);
+}
+
+
+function ImageMap( imgFile ) {
+    this.imgFile = imgFile;
+    this.updateAble = false;
+    this.queue = [];
+    this.self = this;
+    var self = this;
+    this.clicked = 0;
+    this.eW = W;
+    this.eH = H;
+    this.img = new Image();
+    this.img.src = imgFile;
+    this.update = function() {
+        if (self.queue.length > 0) {
+            var msg = { 'queue' : self.queue };
+            harb( msg );
+            self.queue = [];
+        }
+        return 0;
+    };
+    this.step = function() {
+        if (self.updateAble) {
+            this.draw();
+            self.updateAble = this.update();
+        }
+    };
+
+    this.wasClicked = function(e) {
+        var pos = getPosition(e);
+        var x = pos[0];
+        var y = pos[1];       
+        if (x >= 0 && y >= 0 && x <= this.eW && y <= this.eH) {
+            return 1;
+        } else {
+            return 0;
+        }
+    };
+    this.lastPos = [0,0];
+    this.processPosition = function(x1,y1,x2,y2) {
+        var p = self.getPixel(x1,y1);
+        var o = ['colour','i',p[0],'i',p[1],'i',p[2],'f',x1,'f',y1,'f',x2,'f',y2];
+        //var hex = "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
+        self.queue.push(o);
+        self.updateAble = true;
+        return o;
+        //alert(o.join(","));
+    };
+	this.mousedown = function(e) {
+        e.preventDefault();
+        if (self.wasClicked(e)) {
+            var pos = getPosition(e);
+            var x = pos[0];
+            var y = pos[1];
+            self.lastPos = pos;
+	        self.clicked = 1;
+        }
+	};
+    this.getPixel = function(x,y) {
+        return context.getImageData(x, y, 1, 1).data;
+    };
+	this.mouseup = function(e) {
+        e.preventDefault();
+        //alert(getPosition(e));
+        if (self.wasClicked(e)) {
+	        self.clicked = 0;
+            self.selected = -1;
+            var pos = getPosition(e);
+            var x = pos[0];
+            var y = pos[1];
+            self.processPosition(x,y,self.lastPos[0],self.lastPos[1]);
+            self.lastPos = pos;
+	        //self.poppin(x,y);
+        }
+	};
+	this.touchstart = function(e) {
+        self.lasttouch = e;                                         
+        return self.mousedown(e);
+	};
+	this.touchend = function(e) {
+        var touch = (self.lasttouch)?self.lasttouch:e;
+        return self.mouseup(touch);
+	};
+	this.mousemove = function(e) {
+        e.preventDefault();
+        if (self.wasClicked(e)) {
+            var pos = getPosition(e);
+            var x = pos[0];
+            var y = pos[1];
+            var oldPos = self.lastPos;
+            self.lastPos = pos;
+	        if (self.clicked != 0) {
+                debugR(self.processPosition(x,y,oldPos[0],oldPos[1]));
+	            //self.squeakin(x,y);
+	        }
+        }
+	};
+	this.touchmove = function(e) {
+        self.lasttouch = e;                                         
+        return self.mousemove(e);
+	};	    
+	this.mouseinstall = function() {
+        canvas.addEventListener("mousedown",  this.mousedown, false);
+        canvas.addEventListener("mousemove",  this.mousemove, false);
+        canvas.addEventListener("mouseup",    this.mouseup, false);
+        canvas.addEventListener("mouseout",   this.mouseout, false);
+        canvas.addEventListener("touchstart", this.touchstart, false);
+        canvas.addEventListener("touchmove",  this.touchmove, false);
+        canvas.addEventListener("touchend",   this.touchend, false);
+	};
+    this.imgLoaded = false;
+    this.draw = function() {
+        if (this.imgLoaded) {
+            context.drawImage(this.img, 0, 0);
+        }
+    };
+    this.install = function() {        
+        self.mouseinstall();
+        window.setInterval(function() { self.step()  },33);
+    };
+    this.img.onload = function() {
+        self.imgLoaded = true;
+        self.draw();
+        alert("loaded!");
+    };
+}
+
+
+window.onload = function(){
+    
+    canvas = document.getElementById('c');
+    context = canvas.getContext('2d');
+    W = canvas.width  = window.innerWidth-6;
+    H = canvas.height = window.innerHeight-50;
+
+    document.addEventListener("touchstart", preventDefault, false);
+    document.addEventListener("touchmove", preventDefault, false);
+    document.addEventListener("touchend", preventDefault, false);
+    document.addEventListener("click", preventDefault, false);
+    canvas.addEventListener("click", preventDefault, false);
+
+    imageMap = new ImageMap('cell.png');
+    imageMap.install();
+};
+
+
+
+
+
+
+</script>
+</body>
+</html>
